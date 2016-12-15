@@ -28,6 +28,22 @@ function importhelper_civicrm_xmlMenu(&$files) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function importhelper_civicrm_install() {
+  $dao = CRM_Core_DAO::executeQuery(
+    "CREATE TABLE IF NOT EXISTS `civicrm_csv_match_cache` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `contact_id` int(10) unsigned NOT NULL DEFAULT '0',
+      `fname` varchar(50) NOT NULL DEFAULT '',
+      `lname` varchar(100) NOT NULL DEFAULT '',
+      `email` varchar(255) NOT NULL DEFAULT '',
+      `title` varchar(20) NOT NULL DEFAULT '',
+      `state` varchar(12) NOT NULL DEFAULT '',
+      `resolution` varchar(4096) NOT NULL DEFAULT '',
+      `data` varchar(4096) NOT NULL DEFAULT '',
+      PRIMARY KEY (`id`),
+      KEY `foo` (`state`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Cache of uploaded data file'
+  ");
+
   _importhelper_civix_civicrm_install();
 }
 

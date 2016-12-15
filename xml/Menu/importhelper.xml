@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/csv-import-helper</path>
+    <page_callback>CRM_CsvImportHelper_Page_HelperSpa</page_callback>
+    <title>CSV Import Helper Tool</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>

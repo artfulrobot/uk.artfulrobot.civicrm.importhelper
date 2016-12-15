@@ -114,14 +114,14 @@ function _importhelper_civix_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL)
 }
 
 /**
- * @return CRM_Importhelper_Upgrader
+ * @return CRM_CsvImportHelper_Upgrader
  */
 function _importhelper_civix_upgrader() {
-  if (!file_exists(__DIR__.'/CRM/Importhelper/Upgrader.php')) {
+  if (!file_exists(__DIR__.'/CRM/CsvImportHelper/Upgrader.php')) {
     return NULL;
   }
   else {
-    return CRM_Importhelper_Upgrader_Base::instance();
+    return CRM_CsvImportHelper_Upgrader_Base::instance();
   }
 }
 
