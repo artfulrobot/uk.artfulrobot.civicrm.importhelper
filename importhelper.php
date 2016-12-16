@@ -53,6 +53,8 @@ function importhelper_civicrm_install() {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_uninstall
  */
 function importhelper_civicrm_uninstall() {
+  // Remove our table.
+  $dao = CRM_Core_DAO::executeQuery("DROP TABLE IF EXISTS `civicrm_csv_match_cache`;");
   _importhelper_civix_civicrm_uninstall();
 }
 
