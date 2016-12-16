@@ -1,31 +1,42 @@
 <div class="crm-container">
-
-  <div crm-ui-debug="csvRecords"></div>
-
-  <div class="help" ng-show="csvRecords.length == 0" >
-    <p>{{ts('No data uploaded. Do that now.')}}</p>
-    <form ng-show="showUploadForm" >
-      <label for="csv-upload" >Select your CSV file</label>
-      <input type="file" id="csv-upload" name="csv-upload" csv-change="uploadFile" />
-    </form>
-  </div>
-  <div ng-show="csvRecords.length > 0" >
-    <h2>{{ ts('Data to process') }}</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Who</th>
-          <th>Resolution<th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr ng-repeat="(i, row) in csvRecords" class="{{ row.state }}">
-          <td>{{ row.fname }} {{ row.lname }}<br />{{ row.email }}</td>
-          <td>{{ row.state }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div crm-ui-tab-set>
+    <div crm-ui-tab crm-title="ts('Upload CSV')" id="tab-upload">
+      <div class="help" ng-show="csvRecords.length == 0" >
+        <p>{{ts('No data uploaded. Do that now.')}}</p>
+      </div>
+      <div class="help" ng-show="csvRecords.length > 0" >
+        <p>{{ts('Uploading new data will lose any work you have done on the currently uploaded dataset.')}}</p>
+      </div>
+      <form ng-show="showUploadForm" >
+        <label for="csv-upload" >Select your CSV file</label>
+        <input type="file" id="csv-upload" name="csv-upload" csv-change="uploadFile" />
+      </form>
+    </div>
+    <div crm-ui-tab active crm-title="ts('Process Records')" id="tab-process" selected >
+      <div class="help" ng-show="csvRecords.length == 0" >
+        <p>{{ts('No data uploaded. Do that now.')}}</p>
+      </div>
+      <div ng-show="csvRecords.length > 0" >
+        <h2>{{ ts('Data to process') }}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Who</th>
+              <th>Resolution<th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="(i, row) in csvRecords" class="{{ row.state }}">
+              <td>{{ row.fname }} {{ row.lname }}<br />{{ row.email }}</td>
+              <td>{{ row.state }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div crm-ui-tab crm-title="ts('Download CSV')" id="tab-download">
+    </div>
   </div>
 
   <form name="myForm" crm-ui-id-scope>
@@ -70,5 +81,7 @@
     </div>
 
   </form>
+  <div crm-ui-debug="csvRecords"></div>
+
 
 </div>

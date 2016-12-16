@@ -50,6 +50,7 @@ function civicrm_api3_csv_helper_Upload($params) {
   $clean_only = FALSE;
   $skipped_blanks = 0;
   $rows = 0;
+  CRM_Core_DAO::executeQuery('TRUNCATE civicrm_csv_match_cache;');
   foreach ($file as $_) {
     $line = str_getcsv($_);
     $line = array(

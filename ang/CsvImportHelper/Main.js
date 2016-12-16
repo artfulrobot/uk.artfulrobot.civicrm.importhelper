@@ -40,24 +40,35 @@
       console.log("uploadFile running", event);
       var files = event.target.files;
       if (files.length == 1) {
-        $scope.$apply('showUploadForm = false');
+        // $scope.$apply('showUploadForm = false');
         var files = event.target.files;
         console.log(files, $scope);
         var r = new FileReader();
+        // Create closure so we can reference the file
         r.onload = (function(file) {
 
+          // Start reading the file.
           r.readAsDataURL(file);
 
+          // We're returning an event handler for r.onload
           return function(e) {
             var d = r.result;
-            console.log("file loaded", file, r.result);
+            console.log("file loaded", file, d);
             // Send file to API.
             return crmStatus(
               // Status messages.
               {start: ts('Uploading...'), success: ts('Uploaded')},
               // The save action. Note that crmApi() returns a promise.
               crmApi('CsvHelper', 'upload', { data: d })
-            );
+            )
+            .then(function() { return crmApi('CsvHelper', 'get', {});} )
+            .then(function(result) {
+              console.log("updating ui...", result);
+              //$scope.$apply(function() {
+              $scope.csvRecords = result.values;
+              console.log($scope.csvRecords);});
+            //});
+
           };
         })(files[0]);
       }
