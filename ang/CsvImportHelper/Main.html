@@ -10,7 +10,7 @@ table.csv-helper tr.multiple {
   background-color:#f0e0d0;
 }
 </style>
-<div class="crm-container">
+<div class="crm-container" id="csv-import-helper-app">
   <div crm-ui-tab-set>
     <div crm-ui-tab crm-title="ts('Upload CSV')" id="tab-upload">
       <div class="help" ng-show="csvRecords.length == 0" >
@@ -19,7 +19,7 @@ table.csv-helper tr.multiple {
       <div class="help" ng-show="csvRecords.length > 0" >
         <p>{{ts('Uploading new data will lose any work you have done on the currently uploaded dataset.')}}</p>
       </div>
-      <form ng-show="showUploadForm" >
+      <form>
         <label for="csv-upload" >Select your CSV file</label>
         <input type="file" id="csv-upload" name="csv-upload" csv-change="uploadFile" />
       </form>
@@ -68,7 +68,17 @@ table.csv-helper tr.multiple {
         </table>
       </div>
     </div>
-    <div crm-ui-tab crm-title="ts('Download CSV')" id="tab-download">
+    <div crm-ui-tab crm-title="ts('Download CSV')" id="tab-download" >
+      <p>Here you can download a new version of your original CSV file with an
+      extra CiviCRM Contact ID column added at the start of it.</p>
+      <div class="help" ng-if="csvRecords.length == 0" >
+        You can't download anything at the mo, because you haven't uploaded any data yet.
+      </div>
+      <div ng-if="csvRecords.length > 0" >
+        <p><a class="button" href="{{ CRM.url('civicrm/csv-import-helper-download') }}" >Download CSV</a></p>
+        <p>Once you're sure you've got the CSV file you can then delete the working copy of the data with this button:</p>
+        <button crm-confirm="{message: ts('Sure you want to delete the CSV data you have been working with?')}" on-yes="dropData()" >Delete Uploaded CSV Data</button>
+      </div>
     </div>
   </div>
 

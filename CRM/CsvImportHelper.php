@@ -39,7 +39,7 @@ class CRM_CsvImportHelper {
     $rows = 0;
 
     // Drop all existing data.
-    CRM_Core_DAO::executeQuery('TRUNCATE civicrm_csv_match_cache;');
+    static::truncate();
 
     // Insert new data.
     foreach ($file as $_) {
@@ -380,59 +380,6 @@ class CRM_CsvImportHelper {
       return '"' . str_replace('"','""',$string) . '"';
     }
   /**
-   * Generates the HTML for a particular matched row
-   */
-  public static function resolutionHtml($row) {
-    if ($row['resolution']) {
-      $res = unserialize($row['resolution']);
-      if (is_string($res)) {
-        if ($row['contact_id']) {
-          if ($row['state'] == 'found') {
-            return "Found: <a href='/civicrm/contact/view?reset=1&cid=$row[contact_id]' target='_blank' >$res</a>";
-          }
-          else {
-            // manually chosen, allow reset.
-            if ($row['contact_id']>0) {
-              $html = "Chosen: <a href='/civicrm/contact/view?reset=1&cid=$row[contact_id]' target='_blank' >$res</a>";
-            }
-            else {
-              $html = "New contact";
-            }
-            $html .= " | <a href='/civicrm/csvmatch/assign?rec=$row[id]&cid=0' class='choose-link' data-cid='0' >Reset</a> ";
-            return $html;
-          }
-        }
-        else {
-          // No contact Id
-          if ($row['state'] == 'chosen') {
-              return "New contact | <a href='/civicrm/csvmatch/assign?rec=$row[id]&cid=0' class='choose-link' data-cid='0' >Reset</a> ";
-          }
-          else {
-            return $res;
-          }
-        }
-      }
-      elseif (is_array($res)) {
-        // multiple
-        $html = "Could be: <ul>";
-        foreach ($res as $cid=>$r) {
-          $html .= "<li>"
-            .htmlspecialchars($r['name'] . " ($r[match])")
-            ." <a href='/civicrm/contact/view?reset=1&cid=$cid' target='_blank' >View</a> | "
-            ." <a href='/civicrm/csvmatch/assign?rec=$row[id]&cid=$cid' class='choose-link' data-cid='$cid' >Choose</a> "
-            .'</li>'
-            ;
-        }
-        $html .= "</ul>\n<a href='/civicrm/csvmatch/assign?rec=$row[id]&cid=0&new=1' class='choose-link' data-cid='0' >None of these</a> ";
-        return $html;
-      }
-      else {
-        // shouldn't happen
-        return 'ERROR';
-      }
-    }
-  }
-  /**
    * Load rows from civicrm_csv_match_cache.
    *
    * @param array $filters with the following optional keys:
@@ -463,8 +410,9 @@ class CRM_CsvImportHelper {
 
     $wheres = $wheres ? ('AND ' . implode(' AND ', $wheres)) : '';
 
+    // Select everything except 'data'.
     $sql = "
-      SELECT *, COUNT(id) set_count FROM civicrm_csv_match_cache
+      SELECT id, contact_id, fname, lname, email, title, state, resolution, COUNT(id) set_count FROM civicrm_csv_match_cache
       WHERE state != 'header' $wheres
       GROUP BY fname, lname, email
       ORDER BY state, fname, lname, email
@@ -479,6 +427,57 @@ class CRM_CsvImportHelper {
     }
 
     return $return_values;
+  }
+  /**
+   * Spit a CSV file out.
+   */
+  public static function spewCsv() {
+    // Select everything except 'data'.
+    $sql = "
+      SELECT contact_id, title, fname, lname, data FROM civicrm_csv_match_cache
+      ORDER BY id
+    ";
+    $dao = CRM_Core_DAO::executeQuery($sql);
+    $dao->fetch();
+
+    // Add the headers needed to let the browser know this is a csv file download.
+    header('Content-Type: text/csv; utf-8');
+    header('Content-Disposition: attachment; filename = civicrm-import-data.csv');
+
+    // Output Headers for CSV:
+    //
+    // prepend contact ID and new name fields - just so we're not overwriting the old data.
+    print '"Internal ID","Title", "First Name", "Last Name"';
+    $data = unserialize($dao->data);
+    // unpack original header line
+    $data[0] = "Orig: $data[0]";
+    $data[1] = "Orig: $data[1]";
+    $data[2] = "Orig: $data[2]";
+    foreach ($data as $_) {
+      print "," . static::csvSafe($_);
+    }
+    print "\n";
+
+    // Now output rest of data.
+    while ($dao->fetch()) {
+      $data = unserialize($dao->data);
+      // prepend contact ID and name fields
+      print ($dao->contact_id ? $dao->contact_id : '""');
+      print "," . static::csvSafe($dao->title);
+      print "," . static::csvSafe($dao->fname);
+      print "," . static::csvSafe($dao->lname);
+      foreach ($data as $_) {
+        print "," . static::csvSafe($_);
+      }
+      print "\n";
+    }
+    exit;
+  }
+  /**
+   * Spit a CSV file out.
+   */
+  public static function truncate() {
+    CRM_Core_DAO::executeQuery('TRUNCATE civicrm_csv_match_cache;');
   }
   static function getSummary($counts = null) {
     // Summarise data

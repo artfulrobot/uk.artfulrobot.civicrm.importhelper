@@ -64,6 +64,7 @@
             .then(function() { return crmApi('CsvHelper', 'get', {});} )
             .then(function(result) {
               $scope.csvRecords = result.values;
+              // @todo be really nice if we could send them to the 2nd tab now. Can anyone do a PR for that? @todo
             });
           };
         })(files[0]);
@@ -82,7 +83,6 @@
         $scope.csvRecords[rowIndex] = result.values;
       });
     }
-
     $scope.chooseContact = function(event) {
       return updateContact({
           id: this.$parent.$parent.row.id,
@@ -96,6 +96,16 @@
           contact_id: 0,
           state: 'multiple', // ??
       }, this.$parent.$parent.rowIndex);
+    };
+    $scope.dropData = function() {
+      return crmStatus(
+        // Status messages. For defaults, just use "{}"
+        {start: ts('Clearing uploaded CSV data...'), success: ts('Clean!')},
+        crmApi('CsvHelper', 'drop', {})
+      ).then(function (result) {
+        // Update our data.
+        $scope.csvRecords = [];
+      });
     };
 
   })
