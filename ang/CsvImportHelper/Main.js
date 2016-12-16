@@ -13,12 +13,6 @@
               return result.values;
             });
             return v;
-          },
-          myContact: function(crmApi) {
-            return crmApi('Contact', 'getsingle', {
-              id: 'user_contact_id',
-              return: ['first_name', 'last_name']
-            });
           }
         }
       });
@@ -29,12 +23,18 @@
   //   $scope -- This is the set of variables shared between JS and HTML.
   //   crmApi, crmStatus, crmUiHelp -- These are services provided by civicrm-core.
   //   myContact -- The current contact, defined above in config().
-  angular.module('CsvImportHelper').controller('CsvImportHelperMain', function($scope, crmApi, crmStatus, crmUiHelp, myContact, csvRecords) {
+  angular.module('CsvImportHelper').controller('CsvImportHelperMain', function($scope, crmApi, crmStatus, crmUiHelp, csvRecords) {
     // The ts() and hs() functions help load strings for this module.
     var ts = $scope.ts = CRM.ts('importhelper');
     var hs = $scope.hs = crmUiHelp({file: 'CRM/CsvImportHelper/Main'}); // See: templates/CRM/CsvImportHelper/Main.hlp
 
     $scope.csvRecords = csvRecords;
+    $scope.CRM = CRM;
+    $scope.selectedContact = function(row) {
+      // find the contact id in the resolution.
+      var contact = _.find(row.resolution, { contact_id: row.contact_id });
+      return "(" + contact.contact_id + ") " + contact.name;
+    }
 
     $scope.uploadFile = function(event) {
       console.log("uploadFile running", event);
@@ -63,32 +63,41 @@
             )
             .then(function() { return crmApi('CsvHelper', 'get', {});} )
             .then(function(result) {
-              console.log("updating ui...", result);
-              //$scope.$apply(function() {
               $scope.csvRecords = result.values;
-              console.log($scope.csvRecords);});
-            //});
-
+            });
           };
         })(files[0]);
       }
     };
 
-    // We have myContact available in JS. We also want to reference it in HTML.
-    $scope.myContact = myContact;
-    $scope.showUploadForm = true;
-    $scope.save = function save() {
+    function updateContact(params, rowIndex) {
+      // Update.
       return crmStatus(
         // Status messages. For defaults, just use "{}"
-        {start: ts('Saving...'), success: ts('Saved')},
+        {start: ts('Updating...'), success: ts('OK')},
         // The save action. Note that crmApi() returns a promise.
-        crmApi('Contact', 'create', {
-          id: myContact.id,
-          first_name: myContact.first_name,
-          last_name: myContact.last_name
-        })
-      );
+        crmApi('CsvHelper', 'create', params)
+      ).then(function (result) {
+        // Update our data. This parent parent stuff is a little odd...
+        $scope.csvRecords[rowIndex] = result.values;
+      });
+    }
+
+    $scope.chooseContact = function(event) {
+      return updateContact({
+          id: this.$parent.$parent.row.id,
+          contact_id: this.contact.contact_id,
+          state: 'chosen',
+      }, this.$parent.$parent.rowIndex);
     };
+    $scope.unChooseContact = function(event) {
+      return updateContact({
+          id: this.$parent.$parent.row.id,
+          contact_id: 0,
+          state: 'multiple', // ??
+      }, this.$parent.$parent.rowIndex);
+    };
+
   })
   // This approach from http://stackoverflow.com/a/19647381/623519
   .directive('csvChange', function (){
@@ -101,7 +110,15 @@
         element.bind('change', onChangeHandler);
       }
     };
-  });
+  })
+  .directive('csvChoose', function (){
+    return {
+      restrict: 'A',// only matches Attributes
+      link: function (scope,  element, attrs) {
+        element.bind('change', onChangeHandler);
+      }
+    };
+  })
   ;
 
 })(angular, CRM.$, CRM._);

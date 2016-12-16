@@ -1,3 +1,15 @@
+<style>
+table.csv-helper tr {
+  background:#eee;
+  border-bottom:solid 1px #e8e8e8;
+}
+table.csv-helper tr.chosen {
+  background-color:#e0ffd0;
+}
+table.csv-helper tr.multiple {
+  background-color:#f0e0d0;
+}
+</style>
 <div class="crm-container">
   <div crm-ui-tab-set>
     <div crm-ui-tab crm-title="ts('Upload CSV')" id="tab-upload">
@@ -18,7 +30,7 @@
       </div>
       <div ng-show="csvRecords.length > 0" >
         <h2>{{ ts('Data to process') }}</h2>
-        <table>
+        <table class="csv-helper">
           <thead>
             <tr>
               <th>Who</th>
@@ -26,9 +38,30 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="(i, row) in csvRecords" class="{{ row.state }}">
-              <td>{{ row.fname }} {{ row.lname }}<br />{{ row.email }}</td>
-              <td>{{ row.state }}
+            <tr ng-repeat="(rowIndex, row) in csvRecords" class="{{ row.state }}">
+              <td>{{ row.fname }} {{ row.lname }} ({{ row.set_count }})<br />{{ row.email }}</td>
+              <td>
+                <!-- chosen/found contact  -->
+                <div ng-if="row.contact_id > 0" >
+                  <span ng-if="row.state == 'chosen'">Chosen</span>
+                  <span ng-if="row.state == 'found'">Found</span>
+                  <a href="{{ CRM.url('civicrm/contact/view', {reset:1, cid:row.contact_id}) }}" target="_blank">{{ selectedContact(row) }}</a>
+                  <button ng-if="row.state == 'chosen'" ng-click="unChooseContact()" >Reset</button>
+                  <!-- todo thing to unchoose this one -->
+                </div>
+                <!-- multiple matches -->
+                <div ng-if="row.contact_id == 0 && row.resolution.length > 0">
+                  {{ row.resolution.length > 1 ? "Several candidates" : "Candidate" }} found:
+                  <ul>
+                    <li ng-repeat="(resolutionIndex, contact) in row.resolution" >
+                      {{ contact.match }}: <a href="{{ CRM.url('civicrm/contact/view', {reset:1, cid:contact.contact_id}) }}" target="_blank">{{ contact.contact_id }} {{ contact.name }}</a>
+                      <button ng-click="chooseContact()" >Choose</button>
+                    </li>
+                  </ul>
+                </div>
+                <div ng-if="row.resolution.length == 0">
+                  No matches. <!-- todo stuff here -->
+                </div>
               </td>
             </tr>
           </tbody>
@@ -39,49 +72,4 @@
     </div>
   </div>
 
-  <form name="myForm" crm-ui-id-scope>
-
-    <div class="help">
-      <p>{{ts('This is an auto-generated skeletal page.')}}</p>
-
-      <p>{{ts('To view more debugging information, edit the URL and include "?angularDebug=1".')}}</p>
-    </div>
-
-    <div crm-ui-accordion="{title: ts('Greeting')}">
-      <p ng-show="myContact.first_name">{{ ts('Hello, %1.', {1: myContact.first_name}) }}</p>
-
-      <p ng-show="!myContact.first_name">{{ ts('Hello, stranger.') }}</p>
-    </div>
-
-    <div crm-ui-accordion="{title: ts('About Me')}">
-      <div class="crm-block">
-        <div class="crm-group">
-          <div crm-ui-field="{name: 'myForm.first_name', title: ts('Name'), help: hs('full_name')}">
-            <input
-              crm-ui-id="myForm.first_name"
-              name="first_name"
-              ng-model="myContact.first_name"
-              class="crm-form-text"
-              placeholder="{{ts('First')}}"
-              />
-            <input
-              crm-ui-id="myForm.last_name"
-              name="last_name"
-              ng-model="myContact.last_name"
-              class="crm-form-text"
-              placeholder="{{ts('Last')}}"
-              />
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <button ng-click="save()">{{ts('Save')}}</button>
-      </div>
-    </div>
-
-  </form>
-  <div crm-ui-debug="csvRecords"></div>
-
-
-</div>
+<!--div crm-ui-debug="row"></div> -->
