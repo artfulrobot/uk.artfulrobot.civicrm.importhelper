@@ -159,15 +159,17 @@ function importhelper_civicrm_preProcess($formName, &$form) {
  * Implements hook_civicrm_navigationMenu().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
+ */
 function importhelper_civicrm_navigationMenu(&$menu) {
-  _importhelper_civix_insert_navigation_menu($menu, NULL, array(
-    'label' => ts('The Page', array('domain' => 'uk.artfulrobot.civicrm.importhelper')),
-    'name' => 'the_page',
-    'url' => 'civicrm/the-page',
+  //$parentID =  CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Navigation', 'Contacts', 'id', 'name');
+
+  _importhelper_civix_insert_navigation_menu($menu, 'Contacts', array(
+    'label' => ts('CSV Import Helper', array('domain' => 'uk.artfulrobot.civicrm.importhelper')),
+    'name' => 'csvimporthelper',
+    'url' => 'civicrm/a/#csv-import-helper',
     'permission' => 'access CiviReport,access CiviContribute',
     'operator' => 'OR',
     'separator' => 0,
   ));
   _importhelper_civix_navigationMenu($menu);
-} // */
+}

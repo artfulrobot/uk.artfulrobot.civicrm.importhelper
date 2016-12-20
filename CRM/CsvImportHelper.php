@@ -15,7 +15,7 @@ class CRM_CsvImportHelper {
     if (substr($params['data'], 0, 21) != 'data:text/csv;base64,') {
       throw new InvalidArgumentException('Expected data as data:text/csv and base64 encoded.');
     }
-    $file = base64_decode(substr($params['data'], 21));
+    $file = base64_decode(substr($params['data'], 21), TRUE);
     if (empty($file)) {
       throw new InvalidArgumentException('Decoding base64 data failed.');
     }
@@ -61,11 +61,12 @@ class CRM_CsvImportHelper {
       if ($header) {
         $line['state'] = 'header';
         $header = 0;
+        $rows--; // Don't count the header.
       }
       else {
         if (!$line['lname'] && !$line['title'] && $line['fname']) {
           // Only the 'fname' column has anything in. Try to split a name out from this.
-          CRM_CsvImportHelper::cleanName($line);
+          static::cleanName($line);
         }
         if ($clean_only) {
           $line['state'] = 'clean-only';
@@ -172,7 +173,7 @@ class CRM_CsvImportHelper {
         // Make list of unique candidate contacts.
         foreach ($contacts['values'] as $contact_id => $contact) {
           $record['resolution'][] = [
-            'contact_id' => $contact_id,
+            'contact_id' => (string) $contact_id,
             'match' => ts('Same email'),
             'name'  => $contact['display_name'],
           ];
@@ -180,7 +181,7 @@ class CRM_CsvImportHelper {
 
         if (count($record['resolution']) == 1) {
           // Single winner.
-          $record['contact_id'] = $contact_id;
+          $record['contact_id'] = (string) $contact_id;
           $record['state'] = 'found';
           return;
         }
@@ -193,7 +194,7 @@ class CRM_CsvImportHelper {
         });
         if (count($m) == 1) {
           // Only one of these matches on (email and) first name, use that.
-          $record['contact_id'] = key($m);
+          $record['contact_id'] = (string) key($m);
           $record['state'] = 'found';
         }
 
@@ -204,7 +205,7 @@ class CRM_CsvImportHelper {
         });
         if (count($m) == 1) {
           // Only one of these matches on (email and) last name, use that.
-          $record['contact_id'] = key($m);
+          $record['contact_id'] = (string) key($m);
           $record['state'] = 'found';
         }
 
@@ -222,9 +223,9 @@ class CRM_CsvImportHelper {
       $result = civicrm_api3('Contact', 'get', $params);
       if ($result['count']==1) {
         // winner
-        $record['contact_id'] = $result['values'][0]['contact_id'];
+        $record['contact_id'] = (string) $result['values'][0]['contact_id'];
         $record['resolution'] = [[
-          'contact_id' => $result['values'][0]['contact_id'],
+          'contact_id' => (string) $result['values'][0]['contact_id'],
           'match' => 'Only name match',
           'name' => $result['values'][0]['display_name'],
         ]];
@@ -236,7 +237,7 @@ class CRM_CsvImportHelper {
         // could be any of these contacts
         foreach ($result['values'] as $contact) {
           $record['resolution'][] = [
-            'contact_id' => $contact['contact_id'],
+            'contact_id' => (string) $contact['contact_id'],
             'match' => 'Same name',
             'name'  => $contact['display_name'],
           ];
@@ -255,9 +256,9 @@ class CRM_CsvImportHelper {
       $result = civicrm_api3('Contact', 'get', $params);
       if ($result['count']==1) {
         // winner
-        $record['contact_id'] = $result['values'][0]['contact_id'];
+        $record['contact_id'] = (string) $result['values'][0]['contact_id'];
         $record['resolution'] = [[
-          'contact_id' => $result['values'][0]['contact_id'],
+          'contact_id' => (string) $result['values'][0]['contact_id'],
           'match' => 'Only similar match',
           'name' => $result['values'][0]['display_name'],
         ]];
@@ -270,7 +271,7 @@ class CRM_CsvImportHelper {
         $record['resolution'] = array();
         foreach ($result['values'] as $contact) {
           $record['resolution'][] = [
-            'contact_id' => $contact['contact_id'],
+            'contact_id' => (string) $contact['contact_id'],
             'match' => 'Similar name',
             'name'  => $contact['display_name'],
           ];
@@ -291,7 +292,7 @@ class CRM_CsvImportHelper {
         // could be any of these contacts
         foreach ($result['values'] as $contact) {
           $record['resolution'][] = [
-            'contact_id' => $contact['contact_id'],
+            'contact_id' => (string) $contact['contact_id'],
             'match' => 'Similar name',
             'name'  => $contact['display_name'],
           ];
@@ -315,7 +316,7 @@ class CRM_CsvImportHelper {
         $record['resolution'] = array();
         foreach ($result['values'] as $contact) {
           $record['resolution'][] = [
-            'contact_id' => $contact['contact_id'],
+            'contact_id' => (string) $contact['contact_id'],
             'match' => 'Same last name',
             'name'  => $contact['display_name'],
           ];
@@ -354,19 +355,14 @@ class CRM_CsvImportHelper {
     }
     $record = reset($record);
 
-    // Update all records for the same name and email.
-    $sql = "UPDATE `civicrm_csv_match_cache`
-      SET state = %1, contact_id = %2
-      WHERE fname = %3 AND lname = %4 AND email = %5";
-
-    $queryParams = [
-      1 => [ $updates['state'], 'String'],
-      2 => [ $updates['contact_id'], 'Integer'],
-      3 => [ $record['fname'], 'String' ],
-      4 => [ $record['lname'], 'String' ],
-      5 => [ $record['email'], 'String' ],
-    ];
-    $result = CRM_Core_DAO::executeQuery($sql, $queryParams);
+    static::updateSet(
+      [
+        'fname' => $record['fname'],
+        'lname' => $record['lname'],
+        'email' => $record['email'],
+      ]
+      + $updates
+    );
 
     // Reload and return.
     $record = static::loadCacheRecords([
@@ -375,6 +371,29 @@ class CRM_CsvImportHelper {
       'email' => $record['email'],
     ]);
     return reset($record);
+  }
+  /**
+   * Update the civicrm_csv_match_cache table.
+   */
+  public static function updateSet($updates) {
+
+    // Update all records for the same name and email.
+    $sql = "UPDATE `civicrm_csv_match_cache`
+      SET state = %1, contact_id = %2 "
+      . (isset($updates['resolution']) ? ', resolution = %6 ' : '')
+      . "WHERE fname = %3 AND lname = %4 AND email = %5";
+
+    $queryParams = [
+      1 => [ $updates['state'], 'String'],
+      2 => [ $updates['contact_id'], 'Integer'],
+      3 => [ $updates['fname'], 'String' ],
+      4 => [ $updates['lname'], 'String' ],
+      5 => [ $updates['email'], 'String' ],
+    ];
+    if (isset($updates['resolution'])) {
+      $queryParams[6] = [ $updates['resolution'], 'String' ];
+    }
+    $result = CRM_Core_DAO::executeQuery($sql, $queryParams);
   }
     public static function csvSafe($string) {
       return '"' . str_replace('"','""',$string) . '"';
@@ -410,12 +429,12 @@ class CRM_CsvImportHelper {
 
     $wheres = $wheres ? ('AND ' . implode(' AND ', $wheres)) : '';
 
-    // Select everything except 'data'.
+    // Select every column except 'data'. Keep original input order (id)
     $sql = "
       SELECT id, contact_id, fname, lname, email, title, state, resolution, COUNT(id) set_count FROM civicrm_csv_match_cache
       WHERE state != 'header' $wheres
       GROUP BY fname, lname, email
-      ORDER BY state, fname, lname, email
+      ORDER BY id
     ";
     $dao = CRM_Core_DAO::executeQuery($sql, $params);
     $return_values = $dao->fetchAll();
@@ -479,6 +498,79 @@ class CRM_CsvImportHelper {
   public static function truncate() {
     CRM_Core_DAO::executeQuery('TRUNCATE civicrm_csv_match_cache;');
   }
+  /**
+   * Rescan all un-selected contacts.
+   */
+  public static function rescan() {
+
+    // Select everything except 'data'.
+    $sql = "
+      SELECT MIN(id) id, title, fname, lname, email FROM civicrm_csv_match_cache
+      WHERE contact_id = 0 AND state != 'header'
+      GROUP BY fname, lname, email
+    ";
+    $dao = CRM_Core_DAO::executeQuery($sql);
+
+    while ($dao->fetch()) {
+      $line = [
+        'fname' => $dao->fname,
+        'lname' => $dao->lname,
+        'email' => $dao->email,
+      ];
+      static::findContact($line);
+      $line['resolution'] = serialize($line['resolution']);
+      static::updateSet($line);
+    }
+
+  }
+  /**
+   * Rescan all un-selected contacts.
+   */
+  public static function createMissingContacts() {
+
+    $sql = "
+      SELECT MIN(id) id, title, fname, lname, email FROM civicrm_csv_match_cache
+      WHERE contact_id = 0 AND state = 'impossible'
+      GROUP BY fname, lname, email
+    ";
+    $dao = CRM_Core_DAO::executeQuery($sql);
+
+    while ($dao->fetch()) {
+      $params = [
+        'contact_type' => 'Individual',
+        'first_name'   => $dao->fname,
+        'last_name'    => $dao->lname,
+      ];
+
+      $contact = civicrm_api3('Contact', 'create', $params);
+
+      if ($dao->email) {
+        $params = [
+          'contact_id' => $contact['id'],
+          'email'      => $dao->email,
+        ];
+        $email = civicrm_api3('Email', 'create', $params);
+      }
+
+      // Now update record.
+      static::updateSet([
+        'fname' => $dao->fname,
+        'lname' => $dao->lname,
+        'email' => $dao->email,
+        'state' => 'found',
+        'contact_id' => $contact['id'],
+        'resolution' => serialize(
+          [[
+            'contact_id' => (string) $contact['id'],
+            'match' => ts('Created'),
+            'name'  => "$dao->lname, $dao->fname",
+          ]]),
+      ]);
+    }
+
+    $dao->free();
+
+  }
   static function getSummary($counts = null) {
     // Summarise data
 
@@ -513,22 +605,5 @@ class CRM_CsvImportHelper {
     . ($counts['impossible'] == 0 && $counts['multiple'] == 0 ? "<p><strong>All the rows have a contact match so this dataset looks ready for you to download now.</strong></p>" : "")
     . '</div>'
     ;
-  }
-  /**
-   * Update cache records that match the one sent on name, email.
-   */
-  public static function updateCacheRecords($record) {
-    $x=1;
-    db_update('civicrm_csv_match_cache')
-      ->fields(array(
-        'state' => $record['state'],
-        'contact_id' => $record['contact_id'],
-        'resolution' => $record['resolution'],
-      ))
-      ->condition('fname', $record['fname'])
-      ->condition('lname', $record['lname'])
-      ->condition('state', 'header', '!=')
-      ->condition('email', $record['email'])
-      ->execute();
   }
 }

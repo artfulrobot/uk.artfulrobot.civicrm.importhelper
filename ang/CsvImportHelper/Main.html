@@ -13,6 +13,7 @@ table.csv-helper tr.multiple {
 <div class="crm-container" id="csv-import-helper-app">
   <div crm-ui-tab-set>
     <div crm-ui-tab crm-title="ts('Upload CSV')" id="tab-upload">
+      <h2 ng-show="csvRecords.length > 0">CSV Data uploaded.</h2>
       <div class="help" ng-show="csvRecords.length == 0" >
         <p>{{ts('No data uploaded. Do that now.')}}</p>
       </div>
@@ -30,6 +31,11 @@ table.csv-helper tr.multiple {
       </div>
       <div ng-show="csvRecords.length > 0" >
         <h2>{{ ts('Data to process') }}</h2>
+        <p>
+        <button crm-confirm="{message: ts('Create contacts where there is no match?')}"
+          on-yes="createContacts()" >Create Missing Contacts</button>
+        <button ng-click="recheck()" >Re-check</button>
+        </p>
         <table class="csv-helper">
           <thead>
             <tr>
@@ -77,7 +83,8 @@ table.csv-helper tr.multiple {
       <div ng-if="csvRecords.length > 0" >
         <p><a class="button" href="{{ CRM.url('civicrm/csv-import-helper-download') }}" >Download CSV</a></p>
         <p>Once you're sure you've got the CSV file you can then delete the working copy of the data with this button:</p>
-        <button crm-confirm="{message: ts('Sure you want to delete the CSV data you have been working with?')}" on-yes="dropData()" >Delete Uploaded CSV Data</button>
+        <button crm-confirm="{message: ts('Sure you want to delete the CSV data you have been working with?')}"
+          on-yes="dropData()" >Delete Uploaded CSV Data</button>
       </div>
     </div>
   </div>

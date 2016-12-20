@@ -9,7 +9,8 @@
         // under "resolve".
         resolve: {
           csvRecords: function(crmApi) {
-            var v = crmApi('CsvHelper', 'get', {}).then(function(result) {
+            var v = crmApi('CsvHelper', 'get').then(function(result) {
+              console.log("LOAD", result.values);
               return result.values;
             });
             return v;
@@ -32,17 +33,20 @@
     $scope.CRM = CRM;
     $scope.selectedContact = function(row) {
       // find the contact id in the resolution.
+      console.log("LOOKING for ", {id: row.contact_id}, "in ", row);
       var contact = _.find(row.resolution, { contact_id: row.contact_id });
-      return "(" + contact.contact_id + ") " + contact.name;
-    }
+      if (contact) {
+        return "(" + contact.contact_id + ") " + contact.name;
+      }
+      else {
+        return "failed to find contact for " + row.contact_id;
+      }
+    };
 
     $scope.uploadFile = function(event) {
       console.log("uploadFile running", event);
       var files = event.target.files;
       if (files.length == 1) {
-        // $scope.$apply('showUploadForm = false');
-        var files = event.target.files;
-        console.log(files, $scope);
         var r = new FileReader();
         // Create closure so we can reference the file
         r.onload = (function(file) {
@@ -69,6 +73,23 @@
           };
         })(files[0]);
       }
+    };
+    $scope.recheck = function() {
+      // e.g. after you've tweaked some data in CiviCRM.
+      crmStatus( {start: ts('Re-scanning...'), success: ts('Finished')},
+        crmApi('CsvHelper', 'rescan', {}))
+      .then(function(result) {
+        $scope.csvRecords = result.values;
+        console.log("RESCAN", result.values);
+      });
+    };
+    $scope.createContacts = function() {
+      // Create contacts for those marked 'impossible'.
+      crmStatus( {start: ts('Creating new contacts...'), success: ts('Finished')},
+        crmApi('CsvHelper', 'createMissingContacts', {}))
+      .then(function(result) {
+        $scope.csvRecords = result.values;
+      });
     };
 
     function updateContact(params, rowIndex) {

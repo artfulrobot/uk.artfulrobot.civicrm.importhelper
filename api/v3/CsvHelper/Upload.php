@@ -28,7 +28,7 @@ function civicrm_api3_csv_helper_Upload($params) {
   }
   catch (\Exception $e) {
     // Re-cast exception for API.
-    throw new API_Exception($e->getMessage());
+    throw new API_Exception($e->getMessage(), 1);
   }
 }
 

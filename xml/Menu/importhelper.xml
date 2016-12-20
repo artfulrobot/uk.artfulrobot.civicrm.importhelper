@@ -5,5 +5,6 @@
     <page_callback>CRM_CsvImportHelper_Page_Download</page_callback>
     <title>Download</title>
     <access_arguments>access CiviCRM</access_arguments>
+    <desc>CSV Import Helper</desc>
   </item>
 </menu>

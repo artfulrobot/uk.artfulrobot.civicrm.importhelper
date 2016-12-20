@@ -1,19 +1,19 @@
 <?php
 
 /**
- * CsvHelper.Get API specification (optional)
+ * CsvHelper.Rescan API specification (optional)
  * This is used for documentation and validation.
  *
  * @param array $spec description of fields supported by this API call
  * @return void
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
-function _civicrm_api3_csv_helper_Get_spec(&$spec) {
+function _civicrm_api3_csv_helper_Rescan_spec(&$spec) {
   //$spec['magicword']['api.required'] = 1;
 }
 
 /**
- * CsvHelper.Get API
+ * CsvHelper.Rescan API
  *
  * @param array $params
  * @return array API result descriptor
@@ -21,11 +21,9 @@ function _civicrm_api3_csv_helper_Get_spec(&$spec) {
  * @see civicrm_api3_create_error
  * @throws API_Exception
  */
-function civicrm_api3_csv_helper_Get($params) {
-
-  // Q. how to check permission? todo
+function civicrm_api3_csv_helper_Rescan($params) {
+  CRM_CsvImportHelper::rescan();
   $return_values = CRM_CsvImportHelper::loadCacheRecords();
-  error_log(json_encode($return_values));
-  return civicrm_api3_create_success($return_values, $params, 'CsvHelper', 'get');
+  return civicrm_api3_create_success($return_values, $params, 'CsvHelper', 'rescan');
 }
 
