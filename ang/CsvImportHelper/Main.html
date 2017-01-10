@@ -9,6 +9,7 @@ table.csv-helper tr.chosen {
 table.csv-helper tr.multiple {
   background-color:#f0e0d0;
 }
+#csv-import-helper-app ul { list-style: disc; padding-left:2rem; }
 </style>
 <div class="crm-container" id="csv-import-helper-app">
   <div crm-ui-tab-set>
@@ -24,6 +25,31 @@ table.csv-helper tr.multiple {
         <label for="csv-upload" >Select your CSV file</label>
         <input type="file" id="csv-upload" name="csv-upload" csv-change="uploadFile" />
       </form>
+      <h2>How to use</h2>
+      <p>This tool takes a .csv file and tries to clean names and find the
+      right people (with your help), and then outputs a new version including a
+      CiviCRM Internal ID as the first column.</p>
+
+        <p>The first four column MUST be as follows</p>
+
+        <ol>
+          <li>Title</li>
+          <li>First name</li>
+          <li>Last name</li>
+          <li>Email</li>
+        </ol>
+
+        <p>It is fine (and quite common) for one or more of these to be blank.</p>
+
+        <p>If only the first name column is used, this name is considered for unpacking into different columns, for example the following text in the first name column would be split out into title, first and last name columns:</p>
+
+        <ul>
+          <li>Mr. Fred Flintstone</li>
+          <li>Wilma Flintstone</li>
+          <li>Rubble, Barney</li>
+        </ul>
+
+        <p>The resulting .csv file is then more useful as data for the various core CiviCRM import tools.</p>
     </div>
     <div crm-ui-tab active crm-title="ts('Process Records')" id="tab-process" selected >
       <div class="help" ng-show="csvRecords.length == 0" >

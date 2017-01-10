@@ -12,8 +12,8 @@ class CRM_CsvImportHelper {
     if (empty($params['data'])) {
       throw new InvalidArgumentException('No file sent.');
     }
-    if (substr($params['data'], 0, 21) != 'data:text/csv;base64,') {
-      throw new InvalidArgumentException('Expected data as data:text/csv and base64 encoded.');
+    if (!preg_match('@^data:(text/csv|);base64,@', $params['data'])) {
+      throw new InvalidArgumentException('Expected data as data:text/csv or data:; and base64 encoded. Got: ' . htmlspecialchars(substr($params['data'], 0, 21)));
     }
     $file = base64_decode(substr($params['data'], 21), TRUE);
     if (empty($file)) {
@@ -61,6 +61,10 @@ class CRM_CsvImportHelper {
       if ($header) {
         $line['state'] = 'header';
         $header = 0;
+        // Check that the header does not include 'Internal ID'
+        if (in_array('Internal ID', unserialize($line['data']))) {
+          throw new \InvalidArgumentException('The header line includes an Internal ID column, suggesting that this file has already been processed. Rename that column then re-upload it if you really want to process it.');
+        }
         $rows--; // Don't count the header.
       }
       else {
