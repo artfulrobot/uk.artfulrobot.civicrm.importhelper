@@ -12,10 +12,13 @@ class CRM_CsvImportHelper {
     if (empty($params['data'])) {
       throw new InvalidArgumentException('No file sent.');
     }
-    if (!preg_match('@^data:(text/csv|);base64,@', $params['data'])) {
-      throw new InvalidArgumentException('Expected data as data:text/csv or data:; and base64 encoded. Got: ' . htmlspecialchars(substr($params['data'], 0, 21)));
+
+    // Strip off MIME type; it's usually missing/meaningless from Windows machines anyway. :-(
+    if (!preg_match('@^data:[^;]*;base64,@', $params['data'], $matches)) {
+      throw new InvalidArgumentException('Expected URL-encoded data but got: ' . htmlspecialchars(substr($params['data'], 0, 16)));
     }
-    $file = base64_decode(substr($params['data'], 21), TRUE);
+    $file = base64_decode(substr($params['data'], strlen($matches[0])), TRUE);
+
     if (empty($file)) {
       throw new InvalidArgumentException('Decoding base64 data failed.');
     }
