@@ -1,16 +1,3 @@
-<style>
-table.csv-helper tr {
-  background:#eee;
-  border-bottom:solid 1px #e8e8e8;
-}
-table.csv-helper tr.chosen {
-  background-color:#e0ffd0;
-}
-table.csv-helper tr.multiple {
-  background-color:#f0e0d0;
-}
-#csv-import-helper-app ul { list-style: disc; padding-left:2rem; }
-</style>
 <div class="crm-container" id="csv-import-helper-app">
   <div crm-ui-tab-set>
     <div crm-ui-tab crm-title="ts('Upload CSV')" id="tab-upload">
@@ -91,8 +78,13 @@ table.csv-helper tr.multiple {
                     </li>
                   </ul>
                 </div>
+                <!-- too many candidates -->
+                <div ng-if="row.contact_id == 0 && row.resolution.length == 0 && row.state == 'multiple'">
+                  More than 10 candidate contacts.
+                </div>
                 <div ng-if="row.resolution.length == 0">
-                  No matches. <!-- todo stuff here -->
+                  No matches.
+                  <input crm-entityref="{entity: 'Contact', select: {allowClear:true, placeholder:ts('Select Contact')}}" ng-model="row.contact_id" ng-change="console.log('CHANGE',row.contact_id);" />
                 </div>
               </td>
             </tr>

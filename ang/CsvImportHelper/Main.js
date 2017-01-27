@@ -33,8 +33,8 @@
     $scope.CRM = CRM;
     $scope.selectedContact = function(row) {
       // find the contact id in the resolution.
-      console.log("LOOKING for ", {id: row.contact_id}, "in ", row);
-      var contact = _.find(row.resolution, { contact_id: row.contact_id });
+      console.log("LOOKING for ", {id: row.contact_id}, "in ", row.resolution);
+      var contact = _.find(row.resolution, { contact_id: row.contact_id.toString() });
       if (contact) {
         return "(" + contact.contact_id + ") " + contact.name;
       }
