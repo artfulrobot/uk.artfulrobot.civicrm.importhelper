@@ -24,7 +24,7 @@
   //   $scope -- This is the set of variables shared between JS and HTML.
   //   crmApi, crmStatus, crmUiHelp -- These are services provided by civicrm-core.
   //   myContact -- The current contact, defined above in config().
-  angular.module('CsvImportHelper').controller('CsvImportHelperMain', function($scope, crmApi, crmStatus, crmUiHelp, csvRecords) {
+  angular.module('CsvImportHelper').controller('CsvImportHelperMain', function($scope, crmApi, crmStatus, crmUiHelp, csvRecords, $timeout) {
     // The ts() and hs() functions help load strings for this module.
     var ts = $scope.ts = CRM.ts('importhelper');
     var hs = $scope.hs = crmUiHelp({file: 'CRM/CsvImportHelper/Main'}); // See: templates/CRM/CsvImportHelper/Main.hlp
@@ -68,7 +68,8 @@
             .then(function() { return crmApi('CsvHelper', 'get', {});} )
             .then(function(result) {
               $scope.csvRecords = result.values;
-              // @todo be really nice if we could send them to the 2nd tab now. Can anyone do a PR for that? @todo
+              // Send them to the 2nd tab now.
+              $('#csv-import-helper-tabset').children().tabs('option', 'active', 1);
             });
           };
         })(files[0]);
@@ -146,6 +147,14 @@
       });
     };
 
+    if ($scope.csvRecords.length > 0) {
+      // Allow a mo for it to settle.
+      $timeout(function() {
+        // There is data, jump to 2nd tab.
+        console.log("TRYING TO JUMPO TABS", $('#csv-import-helper-tabset'));
+        $('#csv-import-helper-tabset').children().tabs('option', 'active', 1);
+      }, 500);
+    }
   })
   // This approach from http://stackoverflow.com/a/19647381/623519
   .directive('csvChange', function (){
