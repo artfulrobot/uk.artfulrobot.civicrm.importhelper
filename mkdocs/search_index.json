@@ -1,0 +1,69 @@
+{
+    "docs": [
+        {
+            "location": "/",
+            "text": "CiviCRM CSV Import Helper\n\n\nWhat problems does this help with?\n\n\n\n\n\n\nYou have a load of data to import as \ncontributions\n or \nactivities\n\n  (etc.) to import but because this came from an external source it doesn't have\n  CiviCRM Contact IDs in it.\n\n\n\n\n\n\nYou have data to import to \ncontacts\n but it's a bit of a mess and may\n  result in duplicates, even despite your expertise in using CiviCRM's dedupe\n  rules.\n\n\n\n\n\n\nYou have data to import but the name field is just one field instead of first\n  and last names.\n\n\n\n\n\n\nHow does it help?\n\n\nYou feed it a CSV (Comma-Separated Values) and it uses an interactive process to\nhelp \nyou\n identify the contacts for each row. You can also have it create\ncontacts when you have decided they need to be.\n\n\nIt tries to be helpful by looking for matches for you, based on name and email.\nIf it finds a single matching contact it will auto-select that, otherwise it\nwill offer you options, e.g. \"Same email: Wilma Flintstone\", or \"Similar name:\nBetty Rubble\".\n\n\nAlso it only shows you distinct sets of first, last names and emails. So if your\ndata has a bunch of records from Wilma Flintstone, you'll only have to locate\nWilma once.\n\n\nWhen everything is matched up, you can download the CSV file again, which will\nbe the same file as you fed into it, but now it has an extra \"Internal ID\"\ncolumn with the CiviCRM Contact ID populated.\n\n\nThen\n you can use that in CiviCRM's normal import routines for contacts,\nactivities, contributions...\n\n\nSound good?\n\n\nSee \nInstallation\n and then jump across to \nUsage\n\n\nArtful Robot wrote this\n\n\nThat's me. I'm a UK based developer stitching together open source technologies\nto make websites and databases to help people and organisations change the world.\n\n\nYou can hire me if you like :-) My website's \nartfulrobot.uk",
+            "title": "Home"
+        },
+        {
+            "location": "/#civicrm-csv-import-helper",
+            "text": "",
+            "title": "CiviCRM CSV Import Helper"
+        },
+        {
+            "location": "/#what-problems-does-this-help-with",
+            "text": "You have a load of data to import as  contributions  or  activities \n  (etc.) to import but because this came from an external source it doesn't have\n  CiviCRM Contact IDs in it.    You have data to import to  contacts  but it's a bit of a mess and may\n  result in duplicates, even despite your expertise in using CiviCRM's dedupe\n  rules.    You have data to import but the name field is just one field instead of first\n  and last names.",
+            "title": "What problems does this help with?"
+        },
+        {
+            "location": "/#how-does-it-help",
+            "text": "You feed it a CSV (Comma-Separated Values) and it uses an interactive process to\nhelp  you  identify the contacts for each row. You can also have it create\ncontacts when you have decided they need to be.  It tries to be helpful by looking for matches for you, based on name and email.\nIf it finds a single matching contact it will auto-select that, otherwise it\nwill offer you options, e.g. \"Same email: Wilma Flintstone\", or \"Similar name:\nBetty Rubble\".  Also it only shows you distinct sets of first, last names and emails. So if your\ndata has a bunch of records from Wilma Flintstone, you'll only have to locate\nWilma once.  When everything is matched up, you can download the CSV file again, which will\nbe the same file as you fed into it, but now it has an extra \"Internal ID\"\ncolumn with the CiviCRM Contact ID populated.  Then  you can use that in CiviCRM's normal import routines for contacts,\nactivities, contributions...",
+            "title": "How does it help?"
+        },
+        {
+            "location": "/#sound-good",
+            "text": "See  Installation  and then jump across to  Usage",
+            "title": "Sound good?"
+        },
+        {
+            "location": "/#artful-robot-wrote-this",
+            "text": "That's me. I'm a UK based developer stitching together open source technologies\nto make websites and databases to help people and organisations change the world.  You can hire me if you like :-) My website's  artfulrobot.uk",
+            "title": "Artful Robot wrote this"
+        },
+        {
+            "location": "/installation/",
+            "text": "Installing and Requirements\n\n\nRequirements\n\n\nThis extension has been written against CiviCRM 4.7 with PHP 5.6 (multibyte\nstring functions required) and MariaDB 10.0 (MariaDB is a drop-in replacement\nfor MySQL that I have found to be more performant than MySQL for CiviCRM, a\nrecent version of MySQL should work just as well), it requires InnoDB and UTF-8\nsupport.\n\n\nAny problems running against other versions please submit an issue and ideally\na pull request :-)\n\n\nDownload and install the extension\n\n\nYou can install this extension in the normal way. Until this makes it into the\nCiviCRM extensions directory, this means grab the code from its github repo, at\n\nhttps://github.com/artfulrobot/uk.artfulrobot.civicrm.importhelper\n\n\nFrom that page you can either download a ZIP file (look under the Releases tab),\nor clone the repo if you're familiar with Git.\n\n\nAnwyay, you want to end up with a directory called\n\nuk.artfulrobot.civicrm.importhelper\n within your CiviCRM extensions directory.\n\n\nThen visit CiviCRM \u00bb Administer \u00bb System Settings \u00bb Extensions and install it.",
+            "title": "Installation"
+        },
+        {
+            "location": "/installation/#installing-and-requirements",
+            "text": "",
+            "title": "Installing and Requirements"
+        },
+        {
+            "location": "/installation/#requirements",
+            "text": "This extension has been written against CiviCRM 4.7 with PHP 5.6 (multibyte\nstring functions required) and MariaDB 10.0 (MariaDB is a drop-in replacement\nfor MySQL that I have found to be more performant than MySQL for CiviCRM, a\nrecent version of MySQL should work just as well), it requires InnoDB and UTF-8\nsupport.  Any problems running against other versions please submit an issue and ideally\na pull request :-)",
+            "title": "Requirements"
+        },
+        {
+            "location": "/installation/#download-and-install-the-extension",
+            "text": "You can install this extension in the normal way. Until this makes it into the\nCiviCRM extensions directory, this means grab the code from its github repo, at https://github.com/artfulrobot/uk.artfulrobot.civicrm.importhelper  From that page you can either download a ZIP file (look under the Releases tab),\nor clone the repo if you're familiar with Git.  Anwyay, you want to end up with a directory called uk.artfulrobot.civicrm.importhelper  within your CiviCRM extensions directory.  Then visit CiviCRM \u00bb Administer \u00bb System Settings \u00bb Extensions and install it.",
+            "title": "Download and install the extension"
+        },
+        {
+            "location": "/usage/",
+            "text": "Usage\n\n\nThe steps are:\n\n\n\n\n\n\nDo a little initial tweaking of your spreadsheet and save as CSV.\n\n\n\n\n\n\nUpload your CSV spreadsheet and process it.\n\n\n\n\n\n\nDownload the new version with the matched contacts.\n\n\n\n\n\n\nInitial tweaking\n\n\nYou need to make the first four columns of your spreadsheet contain, in this\norder:\n\n\n\n\nTitle\n\n\nFirst name (can be the only name field)\n\n\nLast name\n\n\nEmail\n\n\n\n\nSo you may need to rearrange your spreadsheet columns a bit to fit. \nDon't\nworry if some of these are blank\n - e.g. if you don't have titles, names or\nemails for some rows. Obviously you'll need \nsomething\n in there, but it's fine\nif your data just has emails, or just has names, for example.\n\n\nNb. If your data has a single \"Name\" column instead of separate first and last\nnames, stick that in column 2 (or \"B\" in spreadsheet land) - the one for first name.",
+            "title": "Usage"
+        },
+        {
+            "location": "/usage/#usage",
+            "text": "The steps are:    Do a little initial tweaking of your spreadsheet and save as CSV.    Upload your CSV spreadsheet and process it.    Download the new version with the matched contacts.",
+            "title": "Usage"
+        },
+        {
+            "location": "/usage/#initial-tweaking",
+            "text": "You need to make the first four columns of your spreadsheet contain, in this\norder:   Title  First name (can be the only name field)  Last name  Email   So you may need to rearrange your spreadsheet columns a bit to fit.  Don't\nworry if some of these are blank  - e.g. if you don't have titles, names or\nemails for some rows. Obviously you'll need  something  in there, but it's fine\nif your data just has emails, or just has names, for example.  Nb. If your data has a single \"Name\" column instead of separate first and last\nnames, stick that in column 2 (or \"B\" in spreadsheet land) - the one for first name.",
+            "title": "Initial tweaking"
+        }
+    ]
+}
