@@ -32,7 +32,7 @@
         },
         {
             "location": "/installation/",
-            "text": "Installing and Requirements\n\n\nRequirements\n\n\nThis extension has been written against CiviCRM 4.7 with PHP 5.6 (multibyte\nstring functions required) and MariaDB 10.0 (MariaDB is a drop-in replacement\nfor MySQL that I have found to be more performant than MySQL for CiviCRM, a\nrecent version of MySQL should work just as well), it requires InnoDB and UTF-8\nsupport.\n\n\nAny problems running against other versions please submit an issue and ideally\na pull request :-)\n\n\nDownload and install the extension\n\n\nYou can install this extension in the normal way. Until this makes it into the\nCiviCRM extensions directory, this means grab the code from its github repo, at\n\nhttps://github.com/artfulrobot/uk.artfulrobot.civicrm.importhelper\n\n\nFrom that page you can either download a ZIP file (look under the Releases tab),\nor clone the repo if you're familiar with Git.\n\n\nAnwyay, you want to end up with a directory called\n\nuk.artfulrobot.civicrm.importhelper\n within your CiviCRM extensions directory.\n\n\nThen visit CiviCRM \u00bb Administer \u00bb System Settings \u00bb Extensions and install it.",
+            "text": "Installing and Requirements\n\n\nRequirements\n\n\nThis extension has been written against CiviCRM 4.7 with PHP 5.6 (multibyte\nstring functions required) and MariaDB 10.0 (MariaDB is a drop-in replacement\nfor MySQL that I have found to be more performant than MySQL for CiviCRM, a\nrecent version of MySQL should work just as well), it requires InnoDB and UTF-8\nsupport.\n\n\nI have also found it to work with 4.6.24.\n\n\nAny problems running against other versions please submit an issue and ideally\na pull request :-)\n\n\nDownload and install the extension\n\n\nYou can install this extension in the normal way. Until this makes it into the\nCiviCRM extensions directory, this means grab the code from its github repo, at\n\nhttps://github.com/artfulrobot/uk.artfulrobot.civicrm.importhelper\n\n\nFrom that page you can either download a ZIP file (look under the Releases tab),\nor clone the repo if you're familiar with Git.\n\n\nAnwyay, you want to end up with a directory called\n\nuk.artfulrobot.civicrm.importhelper\n within your CiviCRM extensions directory.\n\n\nThen visit CiviCRM \u00bb Administer \u00bb System Settings \u00bb Extensions and install it.",
             "title": "Installation"
         },
         {
@@ -42,7 +42,7 @@
         },
         {
             "location": "/installation/#requirements",
-            "text": "This extension has been written against CiviCRM 4.7 with PHP 5.6 (multibyte\nstring functions required) and MariaDB 10.0 (MariaDB is a drop-in replacement\nfor MySQL that I have found to be more performant than MySQL for CiviCRM, a\nrecent version of MySQL should work just as well), it requires InnoDB and UTF-8\nsupport.  Any problems running against other versions please submit an issue and ideally\na pull request :-)",
+            "text": "This extension has been written against CiviCRM 4.7 with PHP 5.6 (multibyte\nstring functions required) and MariaDB 10.0 (MariaDB is a drop-in replacement\nfor MySQL that I have found to be more performant than MySQL for CiviCRM, a\nrecent version of MySQL should work just as well), it requires InnoDB and UTF-8\nsupport.  I have also found it to work with 4.6.24.  Any problems running against other versions please submit an issue and ideally\na pull request :-)",
             "title": "Requirements"
         },
         {
