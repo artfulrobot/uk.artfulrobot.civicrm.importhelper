@@ -174,6 +174,7 @@ class CRM_CsvImportHelper {
         // Get unique contacts, keyed by contact_id
         $contacts = civicrm_api3('Contact', 'get', [
           'id' => ['IN' => array_keys($contact_ids)],
+          'is_deleted' => 0,
           'sequential' => 0,
         ]);
 
@@ -186,38 +187,43 @@ class CRM_CsvImportHelper {
           ];
         }
 
+        // Nb. there is the case that there is no resolution here, e.g. if
+        // email is found but belongs to deleted contact. This case rolls
+        // through to the email not found below.
         if (count($record['resolution']) == 1) {
           // Single winner.
           $record['contact_id'] = (string) $contact_id;
           $record['state'] = 'found';
           return;
-        }
 
-        // More than one contact matched.
-        // quick scan to see if there's only one that matches first name
-        $m = array_filter($record['resolution'], function ($_, $contact_id) use ($contacts, $record) {
-          $contact = $contacts[$contact_id];
-          return ($contact['first_name'] && $record['fname'] && $contact['first_name'] == $record['fname']);
-        });
-        if (count($m) == 1) {
-          // Only one of these matches on (email and) first name, use that.
-          $record['contact_id'] = (string) key($m);
-          $record['state'] = 'found';
         }
+        elseif (count($record['resolution']) > 1) {
+          // More than one contact matched.
+          // quick scan to see if there's only one that matches first name
+          $m = array_filter($record['resolution'], function ($_, $contact_id) use ($contacts, $record) {
+            $contact = $contacts[$contact_id];
+            return ($contact['first_name'] && $record['fname'] && $contact['first_name'] == $record['fname']);
+          });
+          if (count($m) == 1) {
+            // Only one of these matches on (email and) first name, use that.
+            $record['contact_id'] = (string) key($m);
+            $record['state'] = 'found';
+          }
 
-        // quick scan to see if there's only one that matches last name
-        $m = array_filter($record['resolution'], function ($_, $contact_id) use ($contacts, $record) {
-          $contact = $contacts[$contact_id];
-          return ($contact['last_name'] && $record['lname'] && $contact['last_name'] == $record['lname']);
-        });
-        if (count($m) == 1) {
-          // Only one of these matches on (email and) last name, use that.
-          $record['contact_id'] = (string) key($m);
-          $record['state'] = 'found';
+          // quick scan to see if there's only one that matches last name
+          $m = array_filter($record['resolution'], function ($_, $contact_id) use ($contacts, $record) {
+            $contact = $contacts[$contact_id];
+            return ($contact['last_name'] && $record['lname'] && $contact['last_name'] == $record['lname']);
+          });
+          if (count($m) == 1) {
+            // Only one of these matches on (email and) last name, use that.
+            $record['contact_id'] = (string) key($m);
+            $record['state'] = 'found';
+          }
+
+          // Don't look wider than matched emails.
+          return;
         }
-
-        // Don't look wider than matched emails.
-        return;
       }
     }
 
@@ -226,7 +232,11 @@ class CRM_CsvImportHelper {
 
     if ($record['fname'] && $record['lname']) {
       // see if we can find them by name.
-      $params = ['sequential' => 1, 'first_name' => $record['fname'], 'last_name' => $record['lname'], 'return' => 'display_name'];
+      $params = ['sequential' => 1,
+        'is_deleted' => 0,
+        'first_name' => $record['fname'],
+        'last_name' => $record['lname'],
+        'return' => 'display_name'];
       $result = civicrm_api3('Contact', 'get', $params);
       if ($result['count']==1) {
         // winner
@@ -258,6 +268,7 @@ class CRM_CsvImportHelper {
       // Let's try last name, with first name as a substring match
       // see if we can find them by name.
       $params = ['sequential' => 1,
+        'is_deleted' => 0,
         'first_name' => '%' . $record['fname'] . '%',
         'last_name' => $record['lname']];
       $result = civicrm_api3('Contact', 'get', $params);
@@ -312,7 +323,7 @@ class CRM_CsvImportHelper {
 
     // OK, maybe the last name is particularly unique?
     if ($record['lname']) {
-      $params = ['sequential' => 1, 'last_name' => $record['lname']];
+      $params = ['sequential' => 1, 'last_name' => $record['lname'], 'is_deleted' => 0];
       $result = civicrm_api3('Contact', 'get', $params);
       if ($result['count']>10) {
         $record['state'] = 'multiple';
@@ -356,11 +367,43 @@ class CRM_CsvImportHelper {
    */
   public static function update($record_id, $updates) {
 
+    xdebug_break();
     $record = static::loadCacheRecords(['id' => $record_id]);
     if (count($record) != 1) {
       throw new InvalidArgumentException("Failed to load the record. Try reloading the page.");
     }
     $record = reset($record);
+
+    if (isset($updates['contact_id'])) {
+      // Setting contact ID, either to something in the resolutions list,
+      // something NOT in the resolutions list (contact search)
+      // or to something zero like.
+
+      if ($updates['contact_id']) {
+        // Got contact ID.
+        if (!in_array($updates['contact_id'], array_map(function($_) { return $_['contact_id']; }, $record['resolution'] ))) {
+          // It's not a contact that we guessed in our resolutions array. So we need to add it in now.
+          $contact = civicrm_api3('Contact', 'getsingle', ['id' => (int)$updates['contact_id'], 'return' => 'display_name']);
+          $_ = $record['resolution'];
+          $_ []= [
+            'contact_id' => (string) $updates['contact_id'],
+            'match' => ts('Chosen by you'),
+            'name'  => $contact['display_name'],
+          ];
+          $updates['resolution'] = serialize($_);
+        }
+      }
+      else {
+        // User is un-choosing someone. Clean out the resolutions.
+        $record['resolution'] = array_filter($record['resolution'], function ($_) {
+          return $_['match'] != ts('Chosen by you');
+        });
+        $updates['resolution'] = serialize($record['resolution']);
+      }
+    }
+    if (empty($updates['state'])) {
+      $updates['state'] = $record['resolution'] ? 'multiple' : 'impossible';
+    }
 
     static::updateSet(
       [
@@ -372,15 +415,13 @@ class CRM_CsvImportHelper {
     );
 
     // Reload and return.
-    $record = static::loadCacheRecords([
-      'fname' => $record['fname'],
-      'lname' => $record['lname'],
-      'email' => $record['email'],
-    ]);
+    $record = static::loadCacheRecords(['id' => $record_id]);
     return reset($record);
   }
   /**
-   * Update the civicrm_csv_match_cache table.
+   * Update the civicrm_csv_match_cache table for all records with given name and email.
+   *
+   * Nb. expects resolution key to be a serialized string, if it is given.
    */
   public static function updateSet($updates) {
 
@@ -449,6 +490,10 @@ class CRM_CsvImportHelper {
 
     // Unpack the resolution field, stored serialize()-ed.
     foreach ($return_values as &$row) {
+      // Nb. we have to turn 0 into '' here because crmEntityref angular widget
+      // thing does not recognise 0 as unselected, and merrily selects a random
+      // contact(!)
+      $row['contact_id'] = $row['contact_id'] ? $row['contact_id']  : '';
       $row['resolution'] = $row['resolution'] ? unserialize($row['resolution']) : [];
     }
 

@@ -22,15 +22,12 @@ function _civicrm_api3_csv_helper_Create_spec(&$spec) {
  */
 function civicrm_api3_csv_helper_Create($params) {
 
-  // @todo security
   $record_id = (int) (isset($params['id']) ? $params['id'] : 0);
   $contact_id = (int) (isset($params['contact_id']) ? $params['contact_id'] : 0);
   if ($record_id < 1) {
     throw new API_Exception("Invalid CSV record ID.");
   }
-  if (!isset($params['state']) || !in_array($params['state'], [
-    'chosen', 'multiple'
-  ])) {
+  if (isset($params['state']) && !in_array($params['state'], [ 'chosen', 'multiple', 'impossible' ])) {
     throw new API_Exception("Invalid 'state' value.");
   }
   if ($contact_id < 0) {

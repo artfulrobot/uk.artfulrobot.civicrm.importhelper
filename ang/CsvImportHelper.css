@@ -15,3 +15,19 @@ table.csv-helper tr.multiple {
 table.csv-helper tr.impossible {
   background-color:#f0c8c0;
 }
+table.csv-helper ul {
+  list-style: disc inside;
+  padding-left:0.6em;
+}
+div.csv-helper-cols {
+  display:flex;
+}
+div.csv-helper-cols__left {
+  flex:1 1 auto;
+  padding-right:1rem;
+}
+div.csv-helper-cols__right {
+  text-align:right;
+  flex:0 auto;
+}
+

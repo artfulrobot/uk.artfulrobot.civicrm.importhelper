@@ -45,8 +45,10 @@
       <div ng-show="csvRecords.length > 0" >
         <h2>{{ ts('Data to process') }}</h2>
         <p>
-        <button crm-confirm="{message: ts('Create contacts where there is no match?')}"
-          on-yes="createContacts()" >Create Missing Contacts</button>
+        <button
+          ng-show="countNoMatch()"
+          crm-confirm="{message: ts('Create contacts where there is no match?')}"
+          on-yes="createContacts()" >{{ ts('Create %n Missing Contacts', {'%n' : countNoMatch()}) }}</button>
         <button ng-click="recheck()" >Re-check</button>
         </p>
         <table class="csv-helper">
@@ -62,29 +64,36 @@
               <td>
                 <!-- chosen/found contact  -->
                 <div ng-if="row.contact_id > 0" >
-                  <span ng-if="row.state == 'chosen'">Chosen</span>
-                  <span ng-if="row.state == 'found'">Found</span>
-                  <a href="{{ CRM.url('civicrm/contact/view', {reset:1, cid:row.contact_id}) }}" target="_blank">{{ selectedContact(row) }}</a>
-                  <button ng-if="row.state == 'chosen'" ng-click="unChooseContact()" >Reset</button>
-                  <!-- todo thing to unchoose this one -->
+                  <div class="csv-helper-cols">
+                    <div class="csv-helper-cols__left">
+                      <span ng-if="row.state == 'chosen'">Chosen</span>
+                      <span ng-if="row.state == 'found'">Found</span>
+                      <a href="{{ CRM.url('civicrm/contact/view', {reset:1, cid:row.contact_id}) }}" target="_blank">{{ selectedContact(row) }}</a>
+                    </div>
+                    <div class="csv-helper-cols__right">
+                      <button ng-click="unChooseContact()" >{{ ts( row.state == 'chosen' ? 'Reset' : 'Change' ) }}</button>
+                    </div>
+                  </div>
                 </div>
                 <!-- multiple matches -->
                 <div ng-if="row.contact_id == 0 && row.resolution.length > 0">
                   {{ row.resolution.length > 1 ? "Several candidates" : "Candidate" }} found:
                   <ul>
                     <li ng-repeat="(resolutionIndex, contact) in row.resolution" >
-                      {{ contact.match }}: <a href="{{ CRM.url('civicrm/contact/view', {reset:1, cid:contact.contact_id}) }}" target="_blank">{{ contact.contact_id }} {{ contact.name }}</a>
                       <button ng-click="chooseContact()" >Choose</button>
+                      {{ contact.match }}: <a href="{{ CRM.url('civicrm/contact/view', {reset:1, cid:contact.contact_id}) }}" target="_blank">({{ contact.contact_id }}) {{ contact.name }}</a>
                     </li>
                   </ul>
+                  <input crm-entityref="{entity: 'Contact', select: {allowClear:true, placeholder:ts('Or Select Different Contact')}}" ng-change="chooseContact2()" ng-model="row.contact_id" />
                 </div>
                 <!-- too many candidates -->
                 <div ng-if="row.contact_id == 0 && row.resolution.length == 0 && row.state == 'multiple'">
-                  More than 10 candidate contacts.
+                  {{ ts('More than 10 candidate contacts.') }}
+                  <input crm-entityref="{entity: 'Contact', select: {allowClear:true, placeholder:ts('Select Contact')}}" ng-change="chooseContact2()" ng-model="row.contact_id" />
                 </div>
                 <div ng-if="row.resolution.length == 0">
-                  No matches.
-                  <input crm-entityref="{entity: 'Contact', select: {allowClear:true, placeholder:ts('Select Contact')}}" ng-model="row.contact_id" ng-change="console.log('CHANGE',row.contact_id);" />
+                  {{ ts('No matches.') }}
+                  <input crm-entityref="{entity: 'Contact', select: {allowClear:true, placeholder:ts('Select Contact')}}" ng-change="chooseContact2()" ng-model="row.contact_id" />
                 </div>
               </td>
             </tr>

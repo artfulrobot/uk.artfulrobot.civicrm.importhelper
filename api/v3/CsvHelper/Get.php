@@ -22,10 +22,7 @@ function _civicrm_api3_csv_helper_Get_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_csv_helper_Get($params) {
-
-  // Q. how to check permission? todo
   $return_values = CRM_CsvImportHelper::loadCacheRecords();
-  error_log(json_encode($return_values));
   return civicrm_api3_create_success($return_values, $params, 'CsvHelper', 'get');
 }
 

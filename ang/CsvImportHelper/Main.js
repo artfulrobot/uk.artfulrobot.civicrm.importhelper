@@ -1,4 +1,4 @@
-(function(angular, $, _) {
+(function(angular, $, _, console) {
 
   angular.module('CsvImportHelper').config(function($routeProvider) {
       $routeProvider.when('/csv-import-helper', {
@@ -72,6 +72,8 @@
             });
           };
         })(files[0]);
+        // Re-set the file input.
+        event.target.value = '';
       }
     };
     $scope.recheck = function() {
@@ -100,10 +102,20 @@
         // The save action. Note that crmApi() returns a promise.
         crmApi('CsvHelper', 'create', params)
       ).then(function (result) {
-        // Update our data. This parent parent stuff is a little odd...
+        // Update our data.
+        console.log("results of update:", result.values);
         $scope.csvRecords[rowIndex] = result.values;
       });
     }
+    // This is trigged by the user selecting a contact with the crmEntityref widget.
+    $scope.chooseContact2 = function() {
+      return updateContact({
+          id: this.$parent.row.id,
+          contact_id: this.$parent.row.contact_id,
+          state: 'chosen',
+      }, this.$parent.rowIndex);
+    };
+    // User chose someone from the resolutions list.
     $scope.chooseContact = function(event) {
       return updateContact({
           id: this.$parent.$parent.row.id,
@@ -112,11 +124,16 @@
       }, this.$parent.$parent.rowIndex);
     };
     $scope.unChooseContact = function(event) {
+      console.log("unChooseContact", this);
       return updateContact({
-          id: this.$parent.$parent.row.id,
+          id: this.$parent.row.id,
           contact_id: 0,
-          state: 'multiple', // ??
-      }, this.$parent.$parent.rowIndex);
+      }, this.$parent.rowIndex);
+    };
+    $scope.countNoMatch = function() {
+      return $scope.csvRecords.reduce(function(a, record) {
+        return (record.status == 'impossible') ? a + 1 : a;
+      },0);
     };
     $scope.dropData = function() {
       return crmStatus(
@@ -152,4 +169,4 @@
   })
   ;
 
-})(angular, CRM.$, CRM._);
+})(angular, CRM.$, CRM._, { log: function (){}, warn: function(){}, error: console.error } );
