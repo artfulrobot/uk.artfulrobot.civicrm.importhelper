@@ -8,6 +8,8 @@ for MySQL that I have found to be more performant than MySQL for CiviCRM, a
 recent version of MySQL should work just as well), it requires InnoDB and UTF-8
 support.
 
+I have also found it to work with 4.6.24.
+
 Any problems running against other versions please submit an issue and ideally
 a pull request :-)
 
