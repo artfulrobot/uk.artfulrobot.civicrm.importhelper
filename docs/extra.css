@@ -1,0 +1,11 @@
+img.art {
+  width:100%;
+  height:auto;
+  background-color:transparent;
+  border-radius:unset;
+}
+.art-slogan {
+  padding: 0 1.3rem;
+  color:#ddd;
+  font-size:14px;
+}
