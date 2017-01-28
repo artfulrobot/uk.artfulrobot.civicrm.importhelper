@@ -1,0 +1,4 @@
+site_name: CiviCRM CSV Import Helper Documentation
+theme: readthedocs
+theme_dir: docs-custom-theme
+extra_css: [extra.css]
