@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation - CiviCRM CSV Import Helper Documentation</title>
+  <title>Wishlist - CiviCRM CSV Import Helper Documentation</title>
   
 
   <link rel="shortcut icon" href="../img/favicon.ico">
@@ -21,7 +21,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Installation";
+    var mkdocs_page_name = "Wishlist";
   </script>
   
   <script src="../js/jquery-2.1.1.min.js"></script>
@@ -60,19 +60,8 @@
 <li>
           
             <li>
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Installation</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#installing-and-requirements">Installing and Requirements</a></li>
-                
-                    <li><a class="toctree-l4" href="#requirements">Requirements</a></li>
-                
-                    <li><a class="toctree-l4" href="#download-and-install-the-extension">Download and install the extension</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../installation/">Installation</a>
         
     </li>
 <li>
@@ -85,8 +74,15 @@
 <li>
           
             <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../wishlist/">Wishlist</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Wishlist</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#wishlist-bugs-issues">Wishlist / Bugs / Issues?</a></li>
+                
+            
+            </ul>
         
     </li>
 <li>
@@ -115,7 +111,7 @@
     
       
     
-    <li>Installation</li>
+    <li>Wishlist</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -125,25 +121,29 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="installing-and-requirements">Installing and Requirements</h1>
-<h2 id="requirements">Requirements</h2>
-<p>This extension has been written against CiviCRM 4.7 with PHP 5.6 (multibyte
-string functions required) and MariaDB 10.0 (MariaDB is a drop-in replacement
-for MySQL that I have found to be more performant than MySQL for CiviCRM, a
-recent version of MySQL should work just as well), it requires InnoDB and UTF-8
-support.</p>
-<p>I have also found it to work with 4.6.24.</p>
-<p>Any problems running against other versions please submit an issue and ideally
-a pull request :-)</p>
-<h2 id="download-and-install-the-extension">Download and install the extension</h2>
-<p>You can install this extension in the normal way. Until this makes it into the
-CiviCRM extensions directory, this means grab the code from its github repo, at
-<a href="https://github.com/artfulrobot/uk.artfulrobot.civicrm.importhelper">https://github.com/artfulrobot/uk.artfulrobot.civicrm.importhelper</a></p>
-<p>From that page you can either download a ZIP file (look under the Releases tab),
-or clone the repo if you're familiar with Git.</p>
-<p>Anwyay, you want to end up with a directory called
-<code>uk.artfulrobot.civicrm.importhelper</code> within your CiviCRM extensions directory.</p>
-<p>Then visit CiviCRM » Administer » System Settings » Extensions and install it.</p>
+                <h1 id="wishlist-bugs-issues">Wishlist / Bugs / Issues?</h1>
+<p>Here's some features I think might be useful. If you want these please create a
+feature request in the <a href="https://github.com/artfulrobot/uk.artfulrobot.civicrm.importhelper/issues">Issue
+queue</a>.
+If you can <a href="https://help.github.com/articles/about-pull-requests/">submit a PR</a>,
+even better! Or if you want to <a href="https://artfulrobot.uk">hire me to develop a new
+feature</a>, just ask and I'll do you a quote.</p>
+<ul>
+<li>
+<p>Add a button to create a new contact when there's several similar candidates.</p>
+</li>
+<li>
+<p>Use it with organisations as well as individuals.</p>
+</li>
+<li>
+<p>Add a "Make new contact" button on a per-row basis, instead or as well as the
+  button that does it for <em>all</em> missing contacts at once.</p>
+</li>
+<li>
+<p>It would be nice to have an option to insert names from CiviCRM's into the
+  outputted name columns instead of the input data.</p>
+</li>
+</ul>
               
             </div>
           </div>
@@ -151,10 +151,8 @@ or clone the repo if you're familiar with Git.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../usage/" class="btn btn-neutral float-right" title="Usage"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
-      
-        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../usage/" class="btn btn-neutral" title="Usage"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -180,10 +178,8 @@ or clone the repo if you're familiar with Git.</p>
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../usage/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
-      
-        <span style="margin-left: 15px"><a href="../usage/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

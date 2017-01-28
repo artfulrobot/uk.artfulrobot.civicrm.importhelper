@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="../css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="../css/highlight.css">
+  <link href="../extra.css" rel="stylesheet">
 
   
   <script>
@@ -44,6 +45,8 @@
     <input type="text" name="q" placeholder="Search docs" />
   </form>
 </div>
+        <br/>
+        <a href="https://github.com/artfulrobot/uk.artfulrobot.civicrm.importhelper" >Download</a> 
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -73,13 +76,26 @@
                 
                     <li><a class="toctree-l4" href="#initial-tweaking">Initial tweaking</a></li>
                 
+                    <li><a class="toctree-l4" href="#upload-and-process">Upload and process</a></li>
+                
+                    <li><a class="toctree-l4" href="#download-the-new-csv-file">Download the new CSV file!</a></li>
+                
             
             </ul>
         
     </li>
 <li>
           
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../wishlist/">Wishlist</a>
+        
+    </li>
+<li>
+          
         </ul>
+        <a href="https://artfulrobot.uk" ><img class='art' src="../artfulrobot-logo-plain.svg" alt="Artful Robot logo" /></a>
+        <p class="art-slogan" >Stitching together open source technologies to make websites and databses to help you change the world.</p>
       </div>
       &nbsp;
     </nav>
@@ -112,7 +128,8 @@
             <div class="section">
               
                 <h1 id="usage">Usage</h1>
-<p>The steps are:</p>
+<p>It's pretty easy, but below is a worked example to get you feeling confident.
+The steps are:</p>
 <ol>
 <li>
 <p>Do a little initial tweaking of your spreadsheet and save as CSV.</p>
@@ -139,12 +156,145 @@ emails for some rows. Obviously you'll need <em>something</em> in there, but it'
 if your data just has emails, or just has names, for example.</p>
 <p>Nb. If your data has a single "Name" column instead of separate first and last
 names, stick that in column 2 (or "B" in spreadsheet land) - the one for first name.</p>
+<h3 id="example">Example</h3>
+<p><img alt="Screenshot of demo spreadsheet" src="../spreadsheet.png" /></p>
+<p>This is an example dataset for the purposes of explaining how this works. Notes on this example data set:</p>
+<ol>
+<li>
+<p>The first row starts with the correct column order, as above, and continues
+   with whatever data the file holds - beyond the first four columns doesn't
+   matter. Also note that it doesn't matter what the exact text in the column
+   headers are, here we have <code>fname</code> but it could say <code>first</code> or <code>First Name</code> or
+   whatever.</p>
+</li>
+<li>
+<p>Row 2, Wilma, is an example of someone not in the database.</p>
+</li>
+<li>
+<p>Row 3, Claudio is in the database and this row and...</p>
+</li>
+<li>
+<p>...row 4 also belong to him.</p>
+</li>
+<li>
+<p>Row 5, Iris is missing a last name but her email is in the database.</p>
+</li>
+<li>
+<p>Row 6 has the whole name in the first name column.</p>
+</li>
+<li>
+<p>Rob 7, betty: There's no match in the databse for her full name, but there
+   are a few Ivanovs.</p>
+</li>
+</ol>
+<h2 id="upload-and-process">Upload and process</h2>
+<p>You should find a new menu item <strong>CiviCRM » Contacts » CSV Import Helper</strong>,
+click that.</p>
+<p><img alt="Screenshot of upload page" src="../upload.png" /></p>
+<p>Click Browse and find your CSV file. This should then automatically begin to be
+uploaded (the status is displayed in the top right of the screen). Once
+uploaded you should be moved to the Process Records tab.</p>
+<p><img alt="Screenshot of Process Records screen" src="../process-1.png" /></p>
+<h3 id="whats-it-showing">What's it showing?</h3>
+<p>The <em>Who</em> column shows the name and email from the uploaded data. It also shows
+in brackets how many rows in the input data belong to that person. The second
+column shows which contact matches in the database.</p>
+<p>Of note:</p>
+<ol>
+<li>
+<p>Wilma Flintstone is listed as "No matches". We expected that, she's new to
+   us.</p>
+</li>
+<li>
+<p>Claudio has a <code>(2)</code> in the Who column because there are two rows in the input
+   data that belong to him. This is a very useful feature if you have a lot of
+   records relating to the same person! He has been located as an existing
+   contact and the name from CiviCRM is shown in the Resolution column. The
+   resolution column also has <code>(187)</code> which is that contact's CiviCRM internal
+   contact ID.</p>
+</li>
+<li>
+<p>Iris has been identified (by her email) as one Iris Grant.</p>
+</li>
+<li>
+<p>Brigette has been identified, too. The extension was able to separate out her
+   first and last names OK.</p>
+</li>
+<li>
+<p>Betty was not uniqely identified, but it found several (and not more than 10)
+   other contacts with the same last name.</p>
+</li>
+</ol>
+<h3 id="what-to-do-now">What to do now?</h3>
+<p>The aim of the game is to turn all rows green! Join in, it's fun!</p>
+<h3 id="no-matches">"No matches"</h3>
+<p>Either you want to add a new person into your database, or you need to help the
+extension find the right person manually. For the second case (sometimes you
+know something the database does not, like a change of name, or a different
+email address) you can select a contact using the Select Contact widget.</p>
+<p>Otherwise you can use the <em>Create Missing Contacts</em> button which will create new
+Individuals (no, you can't use this for Organisations) for all the rows that say
+<em>No Matches</em>, in this case just one. Typically you'd leave pressing that button
+until you had checked the whole dataset.</p>
+<h3 id="found">"Found"</h3>
+<p>Job done! However, if you think the extension got it wrong you can click the
+Change button.</p>
+<h3 id="several-candidates-found">"Several candidates found"</h3>
+<p>If one of the ones listed is right you can click the Choose button. Otherwise
+you can use the select contact widget to find the person yourself.</p>
+<h3 id="what-else">What else?</h3>
+<p>If you've selected a contact you can "Reset" this decision and choose a
+different one with the Reset button that appears once you've made a choice.</p>
+<h3 id="what-does-the-re-check-button-do">What does the Re-check button do?</h3>
+<p>Sometimes while working with import data you notice things about your existing
+data and make updates. e.g. you might choose to merge two duplicate contacts.
+This will mess up the guesses in the Resolutions as the exension won't know that
+you've done this and will still be offering contacts that don't exist any more!
+Di-sa-ster, darling. That's what the Re-check button is for. It will look for
+matches for all rows that aren't selected (green).</p>
+<h3 id="do-i-have-to-make-it-all-green">Do I <em>have to</em> make it all green?</h3>
+<p>Nope. If you don't select a contact then when you download the output
+spreadsheet it will just have a blank in the Internal ID column.</p>
+<h2 id="download-the-new-csv-file">Download the new CSV file!</h2>
+<p>Finally you can visit the Download tab:</p>
+<p><img alt="Screenshot of download tab" src="../download.png" /></p>
+<p>There's two buttons:</p>
+<ol>
+<li>
+<p>Download CSV - get your new file</p>
+</li>
+<li>
+<p>Delete Uploaded CSV data - deletes the copy of data you uploaded. You should
+   always do this after you've successfully downloaded the matched data.</p>
+</li>
+</ol>
+<h3 id="the-outputted-spreadsheet">The outputted spreadsheet</h3>
+<p><img alt="Screenshot of resulting CSV" src="../downloaded-csv.png" /></p>
+<ol>
+<li>
+<p>It has the Internal ID from CiviCRM as the first column.</p>
+</li>
+<li>
+<p>The title, first, last name columns are sort of duplicated with the original
+   columns following. This is a bit weird, but it's useful to see (and possibly
+   fix) how the extension has separated out names, e.g. Brigette.</p>
+</li>
+<li>
+<p>The rest of the columns should be exactly as they were.</p>
+</li>
+</ol>
+<p>You can then import that using CiviCRM's built-in import tools, the use of which
+is out of scope for this documentation.</p>
+<p>Enjoy!</p>
+<p>Rich Lott / <a href="https://artfulrobot.uk">Artful Robot</a></p>
               
             </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../wishlist/" class="btn btn-neutral float-right" title="Wishlist"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../installation/" class="btn btn-neutral" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -159,7 +309,7 @@ names, stick that in column 2 (or "B" in spreadsheet land) - the one for first n
     
   </div>
 
-  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  <a href="https://artfulrobot.uk">Artful Robot</a>  Documnetation built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
 	  
         </div>
@@ -175,6 +325,8 @@ names, stick that in column 2 (or "B" in spreadsheet land) - the one for first n
       
         <span><a href="../installation/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
+      
+        <span style="margin-left: 15px"><a href="../wishlist/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
