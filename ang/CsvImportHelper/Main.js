@@ -133,7 +133,7 @@
     };
     $scope.countNoMatch = function() {
       return $scope.csvRecords.reduce(function(a, record) {
-        return (record.status == 'impossible') ? a + 1 : a;
+        return (record.state == 'impossible') ? a + 1 : a;
       },0);
     };
     $scope.dropData = function() {
@@ -178,4 +178,6 @@
   })
   ;
 
+// Debugging:
+// })(angular, CRM.$, CRM._, console );
 })(angular, CRM.$, CRM._, { log: function (){}, warn: function(){}, error: console.error } );
