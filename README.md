@@ -3,7 +3,7 @@
 This is a native CiviCRM version of an older Drupal-based tool that has proved
 very useful to my clients.
 
-**Documentation coming soon.**
+See [Documentation](https://artfulrobot.github.io/uk.artfulrobot.civicrm.importhelper/).
 
 ## In a nutshell
 
