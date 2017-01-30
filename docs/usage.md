@@ -19,13 +19,13 @@ order:
 3. Last name
 4. Email
 
-So you may need to rearrange your spreadsheet columns a bit to fit. **Don't
+So you probably need to rearrange your spreadsheet columns a bit to fit. **Don't
 worry if some of these are blank** - e.g. if you don't have titles, names or
 emails for some rows. Obviously you'll need *something* in there, but it's fine
 if your data just has emails, or just has names, for example.
 
 Nb. If your data has a single "Name" column instead of separate first and last
-names, stick that in column 2 (or "B" in spreadsheet land) - the one for first name.
+names, stick that in column 2 (or "B" in spreadsheet-speak) - the one for first name.
 
 ### Example
 
@@ -69,27 +69,30 @@ uploaded you should be moved to the Process Records tab.
 
 The *Who* column shows the name and email from the uploaded data. It also shows
 in brackets how many rows in the input data belong to that person. The second
-column shows which contact matches in the database.
+column shows which contact matches in the database - this is linked to their
+contact record so it's easy to check details if needed.
 
 Of note:
 
-1. Wilma Flintstone is listed as "No matches". We expected that, she's new to
+1. *Wilma Flintstone* is listed as "No matches". We expected that, she's new to
    us.
 
-2. Claudio has a `(2)` in the Who column because there are two rows in the input
+2. *Claudio* has a `(2)` in the Who column because there are two rows in the input
    data that belong to him. This is a very useful feature if you have a lot of
    records relating to the same person! He has been located as an existing
    contact and the name from CiviCRM is shown in the Resolution column. The
    resolution column also has `(187)` which is that contact's CiviCRM internal
    contact ID.
 
-3. Iris has been identified (by her email) as one Iris Grant.
+3. *Iris* has been identified (by her email) as one Iris Grant.
 
-4. Brigette has been identified, too. The extension was able to separate out her
+4. *Brigette* has been identified, too. The extension was able to separate out her
    first and last names OK.
 
-5. Betty was not uniqely identified, but it found several (and not more than 10)
-   other contacts with the same last name.
+5. *Betty* was not uniqely identified, but it found several other contacts with
+   the same last name. Nb. if it finds more than 10 'similar' contacts it just
+   says so because it would be unhelpful to list every person just because they
+   have a popular last name.
 
 ### What to do now?
 
@@ -98,9 +101,9 @@ The aim of the game is to turn all rows green! Join in, it's fun!
 ### "No matches"
 
 Either you want to add a new person into your database, or you need to help the
-extension find the right person manually. For the second case (sometimes you
+extension find the right person yourself. For the second case (sometimes you
 know something the database does not, like a change of name, or a different
-email address) you can select a contact using the Select Contact widget.
+email address) you can select a contact using the *Select Contact* widget.
 
 Otherwise you can use the *Create Missing Contacts* button which will create new
 Individuals (no, you can't use this for Organisations) for all the rows that say
@@ -110,25 +113,26 @@ until you had checked the whole dataset.
 ### "Found"
 
 Job done! However, if you think the extension got it wrong you can click the
-Change button.
+*Change* button which will allow you to select a different contact (or leave it
+unmatched).
 
 ### "Several candidates found"
 
-If one of the ones listed is right you can click the Choose button. Otherwise
-you can use the select contact widget to find the person yourself.
+If one of the ones listed is right you can click the *Choose* button. Otherwise
+you can use the *Select Contact* widget to find the person yourself.
 
 ### What else?
 
 If you've selected a contact you can "Reset" this decision and choose a
-different one with the Reset button that appears once you've made a choice.
+different one with the *Reset* button that appears once you've made a choice.
 
 ### What does the Re-check button do?
 
 Sometimes while working with import data you notice things about your existing
 data and make updates. e.g. you might choose to merge two duplicate contacts.
-This will mess up the guesses in the Resolutions as the exension won't know that
-you've done this and will still be offering contacts that don't exist any more!
-Di-sa-ster, darling. That's what the Re-check button is for. It will look for
+This will mess up the guesses in the *Resolutions* column as the exension won't know that
+you've done this and could still be offering contacts that don't exist any more!
+Di-sa-ster, darling. That's what the *Re-check* button is for. It will look for
 matches for all rows that aren't selected (green).
 
 ### Do I *have to* make it all green?
@@ -138,15 +142,15 @@ spreadsheet it will just have a blank in the Internal ID column.
 
 ## Download the new CSV file!
 
-Finally you can visit the Download tab:
+Finally you can visit the *Download* tab:
 
 ![Screenshot of download tab](download.png)
 
 There's two buttons:
 
-1. Download CSV - get your new file
+1. *Download CSV* - get your new file
 
-2. Delete Uploaded CSV data - deletes the copy of data you uploaded. You should
+2. *Delete Uploaded CSV data* - deletes the copy of data you uploaded. You should
    always do this after you've successfully downloaded the matched data.
 
 ### The outputted spreadsheet
