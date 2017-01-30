@@ -62,7 +62,7 @@ class CRM_CsvImportHelper_Test extends \PHPUnit_Framework_TestCase implements He
    * Checks for headers.
    *
    * @expectedException CiviCRM_API3_Exception
-   * @expectedExceptionMessage Expected data as data:text/csv and base64 encoded.
+   * @expectedExceptionMessage Expected URL-encoded data but got: not a data: url
    */
   public function testUploadRejectsInvalidDataWrongHeader() {
 
@@ -89,7 +89,7 @@ class CRM_CsvImportHelper_Test extends \PHPUnit_Framework_TestCase implements He
     $this->assertEquals('Wilma', $row['fname']);
     $this->assertEquals('Flintstone', $row['lname']);
     $this->assertEquals('multiple', $row['state']);
-    $this->assertEquals(0, $row['contact_id']);
+    $this->assertEquals('', $row['contact_id']);
     $this->assertCount(2, $row['resolution']);
 
     // Second contact should be found automatically.
@@ -106,7 +106,7 @@ class CRM_CsvImportHelper_Test extends \PHPUnit_Framework_TestCase implements He
     $this->assertEquals('Barney', $row['fname']);
     $this->assertEquals('Rubble', $row['lname']);
     $this->assertEquals('impossible', $row['state']);
-    $this->assertEquals(0, $row['contact_id']);
+    $this->assertEquals('', $row['contact_id']);
     $this->assertCount(0, $row['resolution']);
 
     // Fourth contact should match (email is unique)
