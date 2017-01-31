@@ -31,4 +31,3 @@ function civicrm_api3_csv_helper_Upload($params) {
     throw new API_Exception($e->getMessage(), 1);
   }
 }
-

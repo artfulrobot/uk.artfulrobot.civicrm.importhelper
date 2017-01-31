@@ -25,4 +25,3 @@ function civicrm_api3_csv_helper_Get($params) {
   $return_values = CRM_CsvImportHelper::loadCacheRecords();
   return civicrm_api3_create_success($return_values, $params, 'CsvHelper', 'get');
 }
-

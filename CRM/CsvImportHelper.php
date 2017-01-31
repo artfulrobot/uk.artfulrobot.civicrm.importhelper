@@ -36,7 +36,7 @@ class CRM_CsvImportHelper {
     $file = str_getcsv($file, "\n");
 
     // open the file and import the data.
-    $header=1;
+    $header = 1;
     $clean_only = FALSE;
     $skipped_blanks = 0;
     $rows = 0;
@@ -129,7 +129,7 @@ class CRM_CsvImportHelper {
     }
     else {
       $names = preg_split('/\s+/', $names);
-      if (count($names)>1) {
+      if (count($names) > 1) {
         // prefix?
         if (preg_match("/^$titles$/", $names[0])) {
           $record['title'] = array_shift($names);
@@ -141,7 +141,7 @@ class CRM_CsvImportHelper {
     }
 
     // if all lowercase or all uppercase, then tidy the case.
-    foreach (array('fname','lname','title') as $_) {
+    foreach (array('fname', 'lname', 'title') as $_) {
       $name = $record[$_];
       if (strtolower($name) == $name || strtoupper($name) == $name) {
         $record[$_] = ucfirst($name);
@@ -164,8 +164,8 @@ class CRM_CsvImportHelper {
     if ($record['email']) {
 
       // got email look it up in the email table
-      $result = civicrm_api3('Email', 'get', array( 'sequential' => 1, 'email' =>$record['email']));
-      if ($result['count']>0) {
+      $result = civicrm_api3('Email', 'get', array('sequential' => 1, 'email' => $record['email']));
+      if ($result['count'] > 0) {
         // We need to join the contact name details onto our email matches array.
         $contact_ids = array();
         foreach ($result['values'] as $_) {
@@ -232,13 +232,14 @@ class CRM_CsvImportHelper {
 
     if ($record['fname'] && $record['lname']) {
       // see if we can find them by name.
-      $params = ['sequential' => 1,
+      $params = [
+        'sequential' => 1,
         'is_deleted' => 0,
         'first_name' => $record['fname'],
         'last_name' => $record['lname'],
         'return' => 'display_name'];
       $result = civicrm_api3('Contact', 'get', $params);
-      if ($result['count']==1) {
+      if ($result['count'] == 1) {
         // winner
         $record['contact_id'] = (string) $result['values'][0]['contact_id'];
         $record['resolution'] = [[
@@ -250,7 +251,7 @@ class CRM_CsvImportHelper {
         return;
       }
 
-      if ($result['count']>1) {
+      if ($result['count'] > 1) {
         // could be any of these contacts
         foreach ($result['values'] as $contact) {
           $record['resolution'][] = [
@@ -267,12 +268,13 @@ class CRM_CsvImportHelper {
       // Still not found? OK, probably something weird with the first name.
       // Let's try last name, with first name as a substring match
       // see if we can find them by name.
-      $params = ['sequential' => 1,
+      $params = [
+        'sequential' => 1,
         'is_deleted' => 0,
         'first_name' => '%' . $record['fname'] . '%',
         'last_name' => $record['lname']];
       $result = civicrm_api3('Contact', 'get', $params);
-      if ($result['count']==1) {
+      if ($result['count'] == 1) {
         // winner
         $record['contact_id'] = (string) $result['values'][0]['contact_id'];
         $record['resolution'] = [[
@@ -284,7 +286,7 @@ class CRM_CsvImportHelper {
         return;
       }
 
-      if ($result['count']>1) {
+      if ($result['count'] > 1) {
         // could be any of these contacts
         $record['resolution'] = array();
         foreach ($result['values'] as $contact) {
@@ -300,12 +302,13 @@ class CRM_CsvImportHelper {
       }
 
       // Still not found, let's try first initial.
-      $params = [ 'sequential' => 1,
-        'first_name' => substr($record['fname'],0,1) . '%',
+      $params = [
+        'sequential' => 1,
+        'first_name' => substr($record['fname'], 0, 1) . '%',
         'last_name' => $record['lname'],
         'return' => 'display_name'];
       $result = civicrm_api3('Contact', 'get', $params);
-      if ($result['count']>0) {
+      if ($result['count'] > 0) {
         // Can't assume from the initial, even if just one person.
         // could be any of these contacts
         foreach ($result['values'] as $contact) {
@@ -325,11 +328,11 @@ class CRM_CsvImportHelper {
     if ($record['lname']) {
       $params = ['sequential' => 1, 'last_name' => $record['lname'], 'is_deleted' => 0];
       $result = civicrm_api3('Contact', 'get', $params);
-      if ($result['count']>10) {
+      if ($result['count'] > 10) {
         $record['state'] = 'multiple';
         $record['contact_id'] = 0;
       }
-      elseif ($result['count']>0) {
+      elseif ($result['count'] > 0) {
         // could be any of these contacts
         $record['resolution'] = array();
         foreach ($result['values'] as $contact) {
@@ -381,11 +384,12 @@ class CRM_CsvImportHelper {
 
       if ($updates['contact_id']) {
         // Got contact ID.
-        if (!in_array($updates['contact_id'], array_map(function($_) { return $_['contact_id']; }, $record['resolution'] ))) {
+        if (!in_array($updates['contact_id'], array_map(
+          function ($_) {return $_['contact_id'];}, $record['resolution']))) {
           // It's not a contact that we guessed in our resolutions array. So we need to add it in now.
-          $contact = civicrm_api3('Contact', 'getsingle', ['id' => (int)$updates['contact_id'], 'return' => 'display_name']);
+          $contact = civicrm_api3('Contact', 'getsingle', ['id' => (int) $updates['contact_id'], 'return' => 'display_name']);
           $_ = $record['resolution'];
-          $_ []= [
+          $_[] = [
             'contact_id' => (string) $updates['contact_id'],
             'match' => ts('Chosen by you'),
             'name'  => $contact['display_name'],
@@ -443,9 +447,9 @@ class CRM_CsvImportHelper {
     }
     $result = CRM_Core_DAO::executeQuery($sql, $queryParams);
   }
-    public static function csvSafe($string) {
-      return '"' . str_replace('"','""',$string) . '"';
-    }
+  public static function csvSafe($string) {
+    return '"' . str_replace('"', '""', $string) . '"';
+  }
   /**
    * Load rows from civicrm_csv_match_cache.
    *
@@ -457,20 +461,20 @@ class CRM_CsvImportHelper {
    *
    * @return array of records.
    */
-  public static function loadCacheRecords($filters=[]) {
+  public static function loadCacheRecords($filters = []) {
 
     $params = [];
     $wheres = [];
     $i = 1;
 
     if (isset($filters['id'])) {
-      $wheres []= "id = %$i";
+      $wheres[] = "id = %$i";
       $params[$i++] = [ $filters['id'], 'Integer' ];
     }
 
     foreach (['fname', 'lname', 'email'] as $_) {
       if (isset($filters[$_])) {
-        $wheres []= "$_ = %$i";
+        $wheres[] = "$_ = %$i";
         $params[$i++] = [ $filters[$_], 'String' ];
       }
     }
@@ -493,7 +497,7 @@ class CRM_CsvImportHelper {
       // Nb. we have to turn 0 into '' here because crmEntityref angular widget
       // thing does not recognise 0 as unselected, and merrily selects a random
       // contact(!)
-      $row['contact_id'] = $row['contact_id'] ? $row['contact_id']  : '';
+      $row['contact_id'] = $row['contact_id'] ? $row['contact_id'] : '';
       $row['resolution'] = $row['resolution'] ? unserialize($row['resolution']) : [];
     }
 
@@ -623,39 +627,41 @@ class CRM_CsvImportHelper {
     $dao->free();
 
   }
-  static function getSummary($counts = null) {
+  static public function getSummary($counts = NULL) {
     // Summarise data
 
-    if ($counts === null) {
+    if ($counts === NULL) {
       $rows = db_query("
         SELECT *, COUNT(id) set_count FROM {civicrm_csv_match_cache} todo
         WHERE state != 'header'
         GROUP BY fname, lname, email");
 
-      $counts = array('impossible' => 0, 'multiple' => 0,'chosen'=>0,'found'=>0);
-      while($row = $rows->fetchAssoc()) {
-        switch($row['state']) {
-        case 'chosen':
-          if ($row['contact_id']) {
-            $counts['chosen']++;
-          } else {
-            $counts['impossible']++;
-          }
-          break;
-        default:
-          $counts[$row['state']]++;
+      $counts = array('impossible' => 0, 'multiple' => 0, 'chosen' => 0, 'found' => 0);
+      while ($row = $rows->fetchAssoc()) {
+        switch ($row['state']) {
+          case 'chosen':
+            if ($row['contact_id']) {
+              $counts['chosen']++;
+            }
+            else {
+              $counts['impossible']++;
+            }
+            break;
+
+          default:
+            $counts[$row['state']]++;
         }
       }
     }
 
     return "<div id='csv-match-summary'><h2>Data</h2><p>Here is the data that you uploaded. "
-    . ($counts['found']>0 ? "$counts[found] contact(s) were automatically matched. " : "")
-    . ($counts['chosen']>0 ? "$counts[chosen] ambiguous match(es) have been resolved by you. " : "")
-    . ($counts['multiple']>0 ? "$counts[multiple] contact(s) could not be automatically matched because the data
+    . ($counts['found'] > 0 ? "$counts[found] contact(s) were automatically matched. " : "")
+    . ($counts['chosen'] > 0 ? "$counts[chosen] ambiguous match(es) have been resolved by you. " : "")
+    . ($counts['multiple'] > 0 ? "$counts[multiple] contact(s) could not be automatically matched because the data
    is ambiguous, e.g. two contacts with same email or name. With these you should choose from the possibilities below. " : "")
-    . ($counts['impossible']>0 ? "<p>There are $counts[impossible] contacts below for which no contact record could be found. You can <a href='/civicrm/csvmatch/create' >create contact records for them now</a> if you like. You won't be able to import contributions (activities etc.) until these contacts do exist.</p>" : "")
+    . ($counts['impossible'] > 0 ? "<p>There are $counts[impossible] contacts below for which no contact record could be found. You can <a href='/civicrm/csvmatch/create' >create contact records for them now</a> if you like. You won't be able to import contributions (activities etc.) until these contacts do exist.</p>" : "")
     . ($counts['impossible'] == 0 && $counts['multiple'] == 0 ? "<p><strong>All the rows have a contact match so this dataset looks ready for you to download now.</strong></p>" : "")
-    . '</div>'
-    ;
+    . '</div>';
   }
+
 }

@@ -48,4 +48,3 @@ function civicrm_api3_csv_helper_Create($params) {
   }
   return civicrm_api3_create_success($result, $params, 'CsvHelper', 'create');
 }
-
