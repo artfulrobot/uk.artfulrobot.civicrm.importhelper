@@ -370,7 +370,6 @@ class CRM_CsvImportHelper {
    */
   public static function update($record_id, $updates) {
 
-    xdebug_break();
     $record = static::loadCacheRecords(['id' => $record_id]);
     if (count($record) != 1) {
       throw new InvalidArgumentException("Failed to load the record. Try reloading the page.");
