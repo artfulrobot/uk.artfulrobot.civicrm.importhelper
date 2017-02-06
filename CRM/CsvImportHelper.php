@@ -370,11 +370,7 @@ class CRM_CsvImportHelper {
    */
   public static function update($record_id, $updates) {
 
-    $record = static::loadCacheRecords(['id' => $record_id]);
-    if (count($record) != 1) {
-      throw new InvalidArgumentException("Failed to load the record. Try reloading the page.");
-    }
-    $record = reset($record);
+    $record = static::loadCacheRecord($record_id);
 
     if (isset($updates['contact_id'])) {
       // Setting contact ID, either to something in the resolutions list,
@@ -418,7 +414,11 @@ class CRM_CsvImportHelper {
     );
 
     // Reload and return.
-    $record = static::loadCacheRecords(['id' => $record_id]);
+    $record = static::loadCacheRecords([
+        'fname' => $record['fname'],
+        'lname' => $record['lname'],
+        'email' => $record['email'],
+    ]);
     return reset($record);
   }
   /**
@@ -450,7 +450,7 @@ class CRM_CsvImportHelper {
     return '"' . str_replace('"', '""', $string) . '"';
   }
   /**
-   * Load rows from civicrm_csv_match_cache.
+   * Load grouped rows from civicrm_csv_match_cache.
    *
    * @param array $filters with the following optional keys:
    * - id
@@ -467,13 +467,14 @@ class CRM_CsvImportHelper {
     $i = 1;
 
     if (isset($filters['id'])) {
-      $wheres[] = "id = %$i";
-      $params[$i++] = [ $filters['id'], 'Integer' ];
+      // Shortcut for the sake of the API.
+      // Nb. this extension never uses loadCacheRecords with an 'id' filter.
+      return [static::loadCacheRecord($filters['id'])];
     }
 
     foreach (['fname', 'lname', 'email'] as $_) {
       if (isset($filters[$_])) {
-        $wheres[] = "$_ = %$i";
+        $wheres[] = "a.$_ = %$i";
         $params[$i++] = [ $filters[$_], 'String' ];
       }
     }
@@ -481,17 +482,36 @@ class CRM_CsvImportHelper {
     $wheres = $wheres ? ('AND ' . implode(' AND ', $wheres)) : '';
 
     // Select every column except 'data'. Keep original input order (id)
+    // Nb. Fix ssue #2
+    // Certain MySQL engines don't allow selecting a field that is not in a
+    // GROUP BY or aggregate function. So we have to use a join to simulate
+    // FIRST() sort of thing. Of course this would be nicer if the groups
+    // were in one table and the resolutions in another (normalised data), but
+    // that's an optimisation I've not as yet bothered with, since the data is
+    // temporary and not expected to be massive.
     $sql = "
-      SELECT id, contact_id, fname, lname, email, title, state, resolution, COUNT(id) set_count FROM civicrm_csv_match_cache
-      WHERE state != 'header' $wheres
-      GROUP BY fname, lname, email
-      ORDER BY id
+      SELECT a.fname, a.lname, a.email, min(a.id) id, COUNT(a.id) set_count,
+        b.contact_id, b.title, b.state, b.resolution
+      FROM civicrm_csv_match_cache a
+      INNER JOIN civicrm_csv_match_cache b ON (b.id=a.id)
+      WHERE a.state != 'header' $wheres
+      GROUP BY a.fname, a.lname, a.email
+      ORDER BY min(a.id)
     ";
     $dao = CRM_Core_DAO::executeQuery($sql, $params);
     $return_values = $dao->fetchAll();
     $dao->free();
 
-    // Unpack the resolution field, stored serialize()-ed.
+    static::loadCacheRecordsPost($return_values);
+
+    return $return_values;
+  }
+  /**
+   * Unpack the resolution field, stored serialize()-ed.
+   *
+   * @param &array
+   */
+  public static function loadCacheRecordsPost(&$return_values) {
     foreach ($return_values as &$row) {
       // Nb. we have to turn 0 into '' here because crmEntityref angular widget
       // thing does not recognise 0 as unselected, and merrily selects a random
@@ -499,8 +519,30 @@ class CRM_CsvImportHelper {
       $row['contact_id'] = $row['contact_id'] ? $row['contact_id'] : '';
       $row['resolution'] = $row['resolution'] ? unserialize($row['resolution']) : [];
     }
+  }
+  /**
+   * Load single row from civicrm_csv_match_cache.
+   *
+   * @param integer $id
+   * @return array of records.
+   */
+  public static function loadCacheRecord($id) {
 
-    return $return_values;
+    // Select every column except 'data'. Keep original input order (id)
+    $sql = "
+      SELECT fname, lname, email, id,  contact_id, title, state, resolution
+      FROM civicrm_csv_match_cache
+      WHERE id = %1
+    ";
+    $params = [1 => [$id, 'Integer']];
+    $dao = CRM_Core_DAO::executeQuery($sql, $params);
+    $return_values = $dao->fetchAll();
+    $dao->free();
+    if (count($return_values) != 1) {
+      throw new InvalidArgumentException("Failed to load the record. Try reloading the page.");
+    }
+    static::loadCacheRecordsPost($return_values);
+    return reset($return_values);
   }
   /**
    * Spit a CSV file out.
