@@ -483,20 +483,23 @@ class CRM_CsvImportHelper {
 
     // Select every column except 'data'. Keep original input order (id)
     // Nb. Fix ssue #2
-    // Certain MySQL engines don't allow selecting a field that is not in a
-    // GROUP BY or aggregate function. So we have to use a join to simulate
-    // FIRST() sort of thing. Of course this would be nicer if the groups
-    // were in one table and the resolutions in another (normalised data), but
-    // that's an optimisation I've not as yet bothered with, since the data is
-    // temporary and not expected to be massive.
+    // Certain MySQL engines (e.g. 5.7) don't allow selecting a field that is
+    // not in a GROUP BY or aggregate function. So we have to use a subquery +
+    // join to simulate FIRST() sort of thing. Of course this would be nicer if
+    // the groups were in one table and the resolutions in another (normalised
+    // data), but that's an optimisation I've not as yet bothered with, since
+    // the data is temporary and not expected to be massive.
     $sql = "
-      SELECT a.fname, a.lname, a.email, min(a.id) id, COUNT(a.id) set_count,
-        b.contact_id, b.title, b.state, b.resolution
-      FROM civicrm_csv_match_cache a
+      SELECT a.fname, a.lname, a.email, a.id, set_count,
+             b.contact_id, b.title, b.state, b.resolution
+      FROM (
+        SELECT fname, lname, email, min(a.id) id, COUNT(a.id) set_count
+        FROM civicrm_csv_match_cache a
+        WHERE a.state != 'header' $wheres
+        GROUP BY a.fname, a.lname, a.email
+        ) a
       INNER JOIN civicrm_csv_match_cache b ON (b.id=a.id)
-      WHERE a.state != 'header' $wheres
-      GROUP BY a.fname, a.lname, a.email
-      ORDER BY min(a.id)
+      ORDER BY a.id
     ";
     $dao = CRM_Core_DAO::executeQuery($sql, $params);
     $return_values = $dao->fetchAll();
