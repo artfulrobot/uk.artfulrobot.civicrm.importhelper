@@ -607,7 +607,7 @@ class CRM_CsvImportHelper {
     $sql = "
       SELECT MIN(id) id, title, fname, lname, email FROM civicrm_csv_match_cache
       WHERE contact_id = 0 AND state != 'header'
-      GROUP BY fname, lname, email
+      GROUP BY title, fname, lname, email
     ";
     $dao = CRM_Core_DAO::executeQuery($sql);
 
