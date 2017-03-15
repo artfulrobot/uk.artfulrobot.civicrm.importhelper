@@ -208,6 +208,7 @@ class CRM_CsvImportHelper {
             // Only one of these matches on (email and) first name, use that.
             $record['contact_id'] = (string) key($m);
             $record['state'] = 'found';
+            return;
           }
 
           // quick scan to see if there's only one that matches last name
@@ -219,9 +220,12 @@ class CRM_CsvImportHelper {
             // Only one of these matches on (email and) last name, use that.
             $record['contact_id'] = (string) key($m);
             $record['state'] = 'found';
+            return;
           }
 
           // Don't look wider than matched emails.
+          $record['state'] = 'multiple';
+          $record['contact_id'] = 0;
           return;
         }
       }
@@ -331,6 +335,7 @@ class CRM_CsvImportHelper {
       if ($result['count'] > 10) {
         $record['state'] = 'multiple';
         $record['contact_id'] = 0;
+        return;
       }
       elseif ($result['count'] > 0) {
         // could be any of these contacts
