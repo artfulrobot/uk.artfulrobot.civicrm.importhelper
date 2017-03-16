@@ -482,7 +482,7 @@ class CRM_CsvImportHelper {
     $wheres = $wheres ? ('AND ' . implode(' AND ', $wheres)) : '';
 
     // Select every column except 'data'. Keep original input order (id)
-    // Nb. Fix ssue #2
+    // Nb. Fix issue #2
     // Certain MySQL engines (e.g. 5.7) don't allow selecting a field that is
     // not in a GROUP BY or aggregate function. So we have to use a subquery +
     // join to simulate FIRST() sort of thing. Of course this would be nicer if
@@ -605,7 +605,7 @@ class CRM_CsvImportHelper {
 
     // Select everything except 'data'.
     $sql = "
-      SELECT MIN(id) id, title, fname, lname, email FROM civicrm_csv_match_cache
+      SELECT MIN(id) id, fname, lname, email FROM civicrm_csv_match_cache
       WHERE contact_id = 0 AND state != 'header'
       GROUP BY fname, lname, email
     ";
@@ -624,12 +624,14 @@ class CRM_CsvImportHelper {
 
   }
   /**
-   * Rescan all un-selected contacts.
+   * Create new contacts (Individuals) where the state is 'impossible' meaning
+   * either no matches exist or the user has said explicitly that it is a new
+   * contact.
    */
   public static function createMissingContacts() {
 
     $sql = "
-      SELECT MIN(id) id, title, fname, lname, email FROM civicrm_csv_match_cache
+      SELECT MIN(id) id, fname, lname, email FROM civicrm_csv_match_cache
       WHERE contact_id = 0 AND state = 'impossible'
       GROUP BY fname, lname, email
     ";
