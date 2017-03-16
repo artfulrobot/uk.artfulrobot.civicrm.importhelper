@@ -226,7 +226,7 @@ class CRM_CsvImportHelper {
           }
 
           // Don't look wider than matched emails.
-          $record['state'] = 'multiple';
+          $record['state'] = '';
           $record['contact_id'] = 0;
           return;
         }
