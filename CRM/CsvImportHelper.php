@@ -32,8 +32,13 @@ class CRM_CsvImportHelper {
     }
     // Ensure line endings are \n
     $file = str_replace('\r', '\n', str_replace('\r\n', '\n', $file));
+
     // Parse into rows.
-    $file = str_getcsv($file, "\n");
+    // Originally we did the following, based on a note on php.net.
+    // $file = str_getcsv($file, "\n");
+    // However this fails for all but the simplest case because of the way it parses the enclosures (")
+    // Use array_filter to remove empty lines, e.g. an empty line at the end of the file.
+    $file = array_filter(static::parseCsvString($file));
 
     // open the file and import the data.
     $header = 1;
@@ -45,8 +50,7 @@ class CRM_CsvImportHelper {
     static::truncate();
 
     // Insert new data.
-    foreach ($file as $_) {
-      $line = str_getcsv($_);
+    foreach ($file as $line) {
       $line = array(
         'contact_id' => 0,
         'title' => trim($line[0]),
@@ -717,4 +721,61 @@ class CRM_CsvImportHelper {
     . '</div>';
   }
 
+  /**
+   * Takes a whole CSV file and outputs it as an array of rows.
+   */
+  public static function parseCsvString($string) {
+    $i = 0;
+    $line = '';
+    $len = strlen($string);
+    $parsed = [];
+
+    while ($i < $len) {
+      $next_delim = strpos($string, '"', $i);
+
+      $next_newline = strpos($string, "\n", $i);
+      if ($next_newline === FALSE) {
+        // EOF.
+        $next_newline = strlen($string);
+      }
+
+      if ($next_delim === FALSE) {
+        // There is no next delim; therefore the rest of the characters up to
+        // the new line (or EOF) are part of this line.
+        $line .= substr($string, $i, $next_newline);
+        $i = $next_newline;
+      }
+      else {
+        // Got a deliminator.
+        // Add everything up to this point.
+        // Scan ahead for closing deliminator that is not also followd by "
+        $closing_delim = $next_delim;
+        do {
+          $closing_delim = strpos($string, '"', $closing_delim+1);
+          $not_a_delim = ($closing_delim < $len && substr($string, $closing_delim+1, 1) == '"');
+          if ($not_a_delim) {
+            $closing_delim++;
+          }
+        } while ($not_a_delim);
+        // Add to line.
+        $line .= substr($string, $i, $closing_delim - $i + 1);
+        $i = $closing_delim + 1;
+      }
+
+      if ($i == $len || substr($string, $i, 1) == "\n") {
+        // EOL.
+
+        // Detect empty lines.
+        if ($line === "\n") {
+          $parsed []= [];
+        }
+        else {
+          $parsed []= str_getcsv($line);
+        }
+        $line = '';
+        $i++;
+      }
+    }
+    return $parsed;
+  }
 }

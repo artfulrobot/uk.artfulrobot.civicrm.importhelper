@@ -119,4 +119,18 @@ class CRM_CsvImportHelper_Test extends \PHPUnit_Framework_TestCase implements He
 
   }
 
+  /**
+   *
+   * Issue https://github.com/artfulrobot/uk.artfulrobot.civicrm.importhelper/issues/8
+   */
+  public function testUploadHandlesNewLinesInCsvFields() {
+    $src = 'data:text/csv;base64,' . base64_encode(file_get_contents(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'fixtures/testUploadHandlesNewLinesInCsvFields.csv'));
+    $result = civicrm_api3('CsvHelper', 'upload', ['data' => $src ]);
+    $this->assertEquals(1, $result['values']['imported']);
+    $this->assertEquals(0, $result['values']['skipped']);
+
+    $cache = civicrm_api3('CsvHelper', 'get');
+    $this->assertEquals(1, $cache['count']);
+
+  }
 }
