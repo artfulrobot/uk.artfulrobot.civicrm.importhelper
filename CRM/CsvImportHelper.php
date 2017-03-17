@@ -200,28 +200,34 @@ class CRM_CsvImportHelper {
         elseif (count($record['resolution']) > 1) {
           // More than one contact matched.
           // quick scan to see if there's only one that matches first name
-          $m = array_filter($record['resolution'], function ($_, $contact_id) use ($contacts, $record) {
-            $contact = $contacts[$contact_id];
+          $m = array_filter($record['resolution'], function ($_) use ($contacts, $record) {
+            $contact = $contacts['values'][$_['contact_id']];
             return ($contact['first_name'] && $record['fname'] && $contact['first_name'] == $record['fname']);
           });
           if (count($m) == 1) {
             // Only one of these matches on (email and) first name, use that.
-            $record['contact_id'] = (string) key($m);
+            $record['resolution'] = $m;
+            $record['contact_id'] = (string) reset($m)['contact_id'];
             $record['state'] = 'found';
+            return;
           }
 
           // quick scan to see if there's only one that matches last name
-          $m = array_filter($record['resolution'], function ($_, $contact_id) use ($contacts, $record) {
-            $contact = $contacts[$contact_id];
+          $m = array_filter($record['resolution'], function ($_) use ($contacts, $record) {
+            $contact = $contacts['values'][$_['contact_id']];
             return ($contact['last_name'] && $record['lname'] && $contact['last_name'] == $record['lname']);
           });
           if (count($m) == 1) {
             // Only one of these matches on (email and) last name, use that.
-            $record['contact_id'] = (string) key($m);
+            $record['resolution'] = $m;
+            $record['contact_id'] = (string) reset($m)['contact_id'];
             $record['state'] = 'found';
+            return;
           }
 
           // Don't look wider than matched emails.
+          $record['state'] = '';
+          $record['contact_id'] = 0;
           return;
         }
       }
@@ -331,6 +337,7 @@ class CRM_CsvImportHelper {
       if ($result['count'] > 10) {
         $record['state'] = 'multiple';
         $record['contact_id'] = 0;
+        return;
       }
       elseif ($result['count'] > 0) {
         // could be any of these contacts
