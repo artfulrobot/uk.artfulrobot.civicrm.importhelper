@@ -173,3 +173,14 @@ function importhelper_civicrm_navigationMenu(&$menu) {
   ));
   _importhelper_civix_navigationMenu($menu);
 }
+/**
+ * Implements HOOK_civicrm_alterAPIPermissions.
+ *
+ * https://wiki.civicrm.org/confluence/display/CRMDOC/API+Security
+ * https://docs.civicrm.org/dev/en/master/hooks/hook_civicrm_alterAPIPermissions/
+ *
+ */
+function importhelper_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
+  $permissions['csv_helper']['default'] = ['access CiviCRM', 'view all contacts'];
+}
+
