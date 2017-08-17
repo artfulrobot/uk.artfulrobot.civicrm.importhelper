@@ -10,6 +10,7 @@
  */
 function _civicrm_api3_csv_helper_Createmissingcontacts_spec(&$spec) {
   //$spec['magicword']['api.required'] = 1;
+  $spec['id']['description'] = 'If an import cache ID is given only this contact will be created';
 }
 
 /**
@@ -22,8 +23,16 @@ function _civicrm_api3_csv_helper_Createmissingcontacts_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_csv_helper_Createmissingcontacts($params) {
-  CRM_CsvImportHelper::createMissingContacts();
-  $return_values = CRM_CsvImportHelper::loadCacheRecords();
-  return civicrm_api3_create_success($return_values, $params, 'CsvHelper', 'rescan');
+  if (!empty($params['id'])) {
+    CRM_CsvImportHelper::createMissingContact($params['id']);
+    // Return a single cache record.
+    $return_values = CRM_CsvImportHelper::loadCacheRecord($params['id']);
+  }
+  else {
+    CRM_CsvImportHelper::createMissingContacts();
+    // Return all the records.
+    $return_values = CRM_CsvImportHelper::loadCacheRecords();
+  }
+  return civicrm_api3_create_success($return_values, $params, 'CsvHelper', 'createmissingcontacts');
 }
 

@@ -538,7 +538,7 @@ class CRM_CsvImportHelper {
    * Load single row from civicrm_csv_match_cache.
    *
    * @param integer $id
-   * @return array of records.
+   * @return array
    */
   public static function loadCacheRecord($id) {
 
@@ -683,6 +683,47 @@ class CRM_CsvImportHelper {
 
     $dao->free();
 
+  }
+  /**
+   * Create new contact (Individual) for the specified row.
+   *
+   * @param int $record_id id from our cache table.
+   * @return int new Contact ID.
+   */
+  public static function createMissingContact($record_id) {
+    $record = CRM_CsvImportHelper::loadCacheRecord($record_id);
+
+    $params = [
+      'contact_type' => 'Individual',
+      'first_name'   => $record['fname'],
+      'last_name'    => $record['lname'],
+    ];
+
+    $contact = civicrm_api3('Contact', 'create', $params);
+
+    if (!empty($record['email'])) {
+      $params = [
+        'contact_id' => $contact['id'],
+        'email'      => $record['email'],
+      ];
+      $email = civicrm_api3('Email', 'create', $params);
+    }
+
+    // Now update record.
+    static::updateSet([
+      'fname' => $record['fname'],
+      'lname' => $record['lname'],
+      'email' => $record['email'],
+      'state' => 'found',
+      'contact_id' => $contact['id'],
+      'resolution' => serialize(
+        [[
+          'contact_id' => (string) $contact['id'],
+          'match' => ts('Created'),
+          'name'  => "$record[lname], $record[fname]",
+        ]]),
+    ]);
+    return $contact['id'];
   }
   static public function getSummary($counts = NULL) {
     // Summarise data

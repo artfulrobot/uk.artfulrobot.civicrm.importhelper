@@ -61,15 +61,21 @@
                     </li>
                   </ul>
                   <input crm-entityref="{entity: 'Contact', select: {allowClear:true, placeholder:ts('Or Select Different Contact')}}" ng-change="chooseContact2()" ng-model="row.contact_id" />
+                  <em>or</em>
+                  <button ng-click="createNewContact()" >Create New</button>
                 </div>
                 <!-- too many candidates -->
                 <div ng-if="row.contact_id == 0 && row.resolution.length == 0 && row.state == 'multiple'">
                   {{ ts('More than 10 candidate contacts.') }}
                   <input crm-entityref="{entity: 'Contact', select: {allowClear:true, placeholder:ts('Select Contact')}}" ng-change="chooseContact2()" ng-model="row.contact_id" />
+                  <em>or</em>
+                  <button ng-click="createNewContact()" >Create New</button>
                 </div>
                 <div ng-if="row.resolution.length == 0">
                   {{ ts('No matches.') }}
                   <input crm-entityref="{entity: 'Contact', select: {allowClear:true, placeholder:ts('Select Contact')}}" ng-change="chooseContact2()" ng-model="row.contact_id" />
+                  <em>or</em>
+                  <button ng-click="createNewContact()" >Create New</button>
                 </div>
               </td>
             </tr>

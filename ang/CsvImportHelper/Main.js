@@ -131,6 +131,19 @@
           contact_id: 0,
       }, this.$parent.rowIndex);
     };
+    $scope.createNewContact = function(event) {
+      console.log("createNewContact", this);
+      var rowIndex = this.$parent.rowIndex;
+      var cacheId = this.$parent.row.id;
+
+      crmStatus( {start: ts('Creating new contact...'), success: ts('Contact Created')},
+        crmApi('CsvHelper', 'createMissingContacts', { id: cacheId }))
+      .then(function(result) {
+        console.log("CREATE NEW ", result);
+        // The result contains the new row.
+        $scope.csvRecords[rowIndex] = result.values;
+      });
+    };
     $scope.countNoMatch = function() {
       return $scope.csvRecords.reduce(function(a, record) {
         return (record.state == 'impossible') ? a + 1 : a;
