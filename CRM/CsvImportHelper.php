@@ -30,8 +30,6 @@ class CRM_CsvImportHelper {
       $enc = $enc ? $enc : 'ISO-8859-1';
       $file = mb_convert_encoding($file, 'UTF-8', $enc);
     }
-    // Ensure line endings are \n
-    $file = str_replace("\r", "\n", str_replace("\r\n", "\n", $file));
 
     // Parse into rows.
     // Originally we did the following, based on a note on php.net.
@@ -766,6 +764,9 @@ class CRM_CsvImportHelper {
    * Takes a whole CSV file and outputs it as an array of rows.
    */
   public static function parseCsvString($string) {
+    // Ensure line endings are \n
+    $string = str_replace("\r", "\n", str_replace("\r\n", "\n", $string));
+
     $i = 0;
     $line = '';
     $len = strlen($string);
@@ -785,7 +786,7 @@ class CRM_CsvImportHelper {
         // There is no next delim; or it is on the next record.
         // Therefore the rest of the characters up to
         // the new line (or EOF) are part of this line.
-        $line .= substr($string, $i, $next_newline);
+        $line .= substr($string, $i, $next_newline - $i + 1);
         $i = $next_newline;
       }
       else {
