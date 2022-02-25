@@ -167,7 +167,7 @@ function importhelper_civicrm_navigationMenu(&$menu) {
     'label' => ts('CSV Import Helper', array('domain' => 'uk.artfulrobot.civicrm.importhelper')),
     'name' => 'csvimporthelper',
     'url' => 'civicrm/a/#csv-import-helper',
-    'permission' => 'access CiviReport,access CiviContribute',
+    'permission' => 'import contacts',
     'operator' => 'OR',
     'separator' => 0,
   ));
