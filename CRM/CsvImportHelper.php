@@ -8,6 +8,8 @@ class CRM_CsvImportHelper {
    * @param array $params 'data' is a data URL.
    */
   public static function upload($params) {
+    // This could take a while...
+    set_time_limit(0);
 
     if (empty($params['data'])) {
       throw new InvalidArgumentException('No file sent.');
@@ -24,11 +26,26 @@ class CRM_CsvImportHelper {
     }
 
     // OK, we have a file!
-    $enc = mb_detect_encoding($file, 'ISO-5591-1, cp1252, UTF-8', TRUE);
+
+    // Detect encoding.
+    $preferredEncodingList = [];
+    $supportedEncodings = mb_list_encodings();
+    foreach (['ISO-8859-1', 'cp1252', 'Windows-1252', 'UTF-8'] as $desiredEncoding) {
+      if (in_array($desiredEncoding, $supportedEncodings)) {
+        $preferredEncodingList[] = $desiredEncoding;
+      }
+    }
+    if (!$preferredEncodingList) {
+      $preferredEncodingList = NULL;
+    }
+
+    $enc = mb_detect_encoding($file, $preferredEncodingList, TRUE);
     if ($enc !== 'UTF-8') {
-      // default to latin1 if unable to detect
-      $enc = $enc ? $enc : 'ISO-8859-1';
-      $file = mb_convert_encoding($file, 'UTF-8', $enc);
+      // default to assuming input is latin1 if unable to detect, if that is available.
+      if (!$enc && in_array('ISO-8859-1', $supportedEncodings)) {
+        $enc = $enc ? $enc : 'ISO-8859-1';
+        $file = mb_convert_encoding($file, 'UTF-8', $enc);
+      }
     }
 
     // Parse into rows.
@@ -249,13 +266,16 @@ class CRM_CsvImportHelper {
       $result = civicrm_api3('Contact', 'get', $params);
       if ($result['count'] == 1) {
         // winner
-        $record['contact_id'] = (string) $result['values'][0]['contact_id'];
+        // Not the winner: see https://github.com/artfulrobot/uk.artfulrobot.civicrm.importhelper/issues/15
+        // $record['contact_id'] = (string) $result['values'][0]['contact_id'];
+        // $record['state'] = 'found';
+        $record['contact_id'] = 0;
+        $record['state'] = 'multiple'; // not strictly true, but helpful.
         $record['resolution'] = [[
           'contact_id' => (string) $result['values'][0]['contact_id'],
           'match' => 'Only name match',
           'name' => $result['values'][0]['display_name'],
         ]];
-        $record['state'] = 'found';
         return;
       }
 
