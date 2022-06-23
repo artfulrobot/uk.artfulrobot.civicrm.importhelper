@@ -6,7 +6,7 @@
 
 //require __DIR__ . '/../../../../CRM/CsvImportHelper.php';
 
-class CRM_CsvImportHelper_UnitTest extends \PHPUnit_Framework_TestCase {
+class CRM_CsvImportHelper_UnitTest extends \PHPUnit\Framework\TestCase {
 
   /**
    * Empty input should result in an empty array (no rows).
