@@ -1,5 +1,0 @@
-"title","fname","lname","email","some other field","other data"
-,"Flintstone, Wilma",,,,"line 1"
-,"Wilma","Flintstone","wilma.one@example.com",,"line 2"
-,"Barney Rubble",,"barney@example.com",,"line 3 new in Civi"
-,,,"wilma.one@example.com",,"line 4 unique email should match"
